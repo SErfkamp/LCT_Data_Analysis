@@ -32,16 +32,23 @@ public class categorizeGlances {
     }
 	
     void run () {
-		int trackIndex = 0;
+    	
+    	int probandIndex = 0;
 		int straightSectionIndex = 0;
-		//Tracks * No. of Sections * Start/End
-		int[][][] straightSections = new int[10][18][2];
+		//Probands *  Base/Wisch * No. of Sections * Start/End
+		int[][][][] straightSections = new int[31][2][18][2];
 		
         File[] straightSectionFiles = new File(STRAIGHT_SECTION).listFiles();
 
         for (File file : straightSectionFiles) {
         	
-        	trackIndex = Integer.parseInt(""+file.getName().split("\\.")[0]) - 1;
+        	int run;
+        	probandIndex = Integer.parseInt(""+file.getName().split("_")[0]) - 1;
+        	if(file.getName().split("_")[1].equals("base.txt")) {
+        		run = 0;
+        	} else {
+        		run = 1;
+        	}
 
             try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {  
             	          
@@ -49,8 +56,8 @@ public class categorizeGlances {
 
 		        	String[] line = s.split("\\s+");
 		        	
-		        	straightSections[trackIndex][straightSectionIndex][0] = (int) Double.parseDouble(line[0]);
-		        	straightSections[trackIndex][straightSectionIndex][1] = (int) Double.parseDouble(line[1]) + 1;
+		        	straightSections[probandIndex][run][straightSectionIndex][0] = (int) Double.parseDouble(line[0]);
+		        	straightSections[probandIndex][run][straightSectionIndex][1] = (int) Double.parseDouble(line[1]) + 1;
 		        	
 		        	straightSectionIndex++;
 		    	}            		       
@@ -97,11 +104,9 @@ public class categorizeGlances {
             
             int i = startTime = endTime = duration = 0;
             ArrayList<int[]> data = new ArrayList<int[]>();
-            
-            String fileName = file.getName();
-            
-        	proband = Integer.parseInt(""+file.getName().charAt(0));
-        	offset = offsets[proband-1];
+                        
+        	proband = Integer.parseInt(""+file.getName().charAt(0))-1;
+        	offset = offsets[proband];
             
             //read file
             try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
@@ -151,43 +156,69 @@ public class categorizeGlances {
 
         }
     }
-
-    // super inefficient ;_; - I know
-	private int getTypeForGlance(int startTime, int endTime, int duration, int proband, int[][][] straightSections) {
+    
+	private int getTypeForGlance(int startTime, int endTime, int duration, int proband, int[][][][] straightSections) {
 		
-		// Iterate through files
-        File file = new File(FOLDER_DRIVING + "\\" + proband + "_wisch.txt");
-                
+		double[] y_positions = getYPosFromTimestamp(startTime, endTime, proband);
+		double glance_start = y_positions[0];
+		double glance_end = y_positions[1];
+		int track = (int) y_positions[2];
+
+        for(int k = 0; k < straightSections[proband][1].length; k++) {
+        	
+        	int section_start = straightSections[proband][1][k][0];
+        	int section_end = straightSections[proband][1][k][1];
+        	
+        	// if start is already too small all following section will also be too big -> return 0;
+        	if(glance_start <= section_start) return 0;
+            	
+        	if(glance_start >= section_start && glance_start <= section_end) {
+        		if (glance_end <= section_end) {
+        			return 1;
+        		}
+        		
+        		double distStraight = section_end - glance_start;
+        		double distLC = glance_end - section_end;
+        		
+        		// if glance is longer in the straight section return it as straight section glance
+        		return distStraight >= distLC ? 1 : 0;
+        	}
+        }
+        
+    	return 0;    
+	}
+	
+	private double[] getYPosFromTimestamp(int startTime, int endTime, int proband) {
+		double[] y_pos= {0.0,0.0,0.0};
+		
+		// Get driving file for proband
+        File file = new File(FOLDER_DRIVING + "\\" + (proband+1) + "_wisch.txt");
+        
         //read file
         try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
         	
         	for(String s : (Iterable<String>)lines::iterator) {
-        		   		        		
+
             	String[] line = s.split("\\s+");            	
             	if(line[0].equals("Zeit_in_s")) continue;  
             	
-            	int track = Integer.parseInt(line[5])-1;
             	int currentTime = (int) (Double.parseDouble(line[0]) * 1000);
-            	double y_pos = Double.parseDouble(line[2]);
 
             	if(startTime <= currentTime) {
-                	
-                	for(int k = 0; k < straightSections[track].length; k++) {
-                    	if(y_pos <= straightSections[track][k][0]) break;
-                    	
-                    	if(y_pos >= straightSections[track][k][0] && y_pos <= straightSections[track][k][1]) {
-                    		return 1;
-                    	}
-                    	
-                	}	
-                	return 0;
+            		y_pos[0] = Double.parseDouble(line[2]);
             	}
             	
-        	}       		           	                	
+            	if(endTime <= currentTime) {
+            		y_pos[1] = Double.parseDouble(line[2]);
+            		y_pos[2] = Double.parseDouble(line[5])-1;
+            		break;
+            	}            	
+        	}  
         } catch (IOException ex) {
           	ex.printStackTrace();
         }
-        
-    	return 0;        
+    	return y_pos;
+
 	}
+
 }

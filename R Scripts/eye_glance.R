@@ -73,20 +73,45 @@ for(i in 1:length(files)) {
 
 ## APPEND PERFORMANCE DATA - WITH PREFORMATTED DATA ##
 #diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_simple.csv", header=T, stringsAsFactors = FALSE) # load file
-#diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_iso.csv", header=T, stringsAsFactors = FALSE) # load file
-diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_dlpa.csv", header=T, stringsAsFactors = FALSE) # load file
+diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_iso.csv", header=T, stringsAsFactors = FALSE) # load file
+#diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_dlpa.csv", header=T, stringsAsFactors = FALSE) # load file
+diff_Straight_LC <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_iso_straight_lc.csv", header=T, stringsAsFactors = FALSE) # load file
 
 
 diff$Diff <- as.numeric(gsub(",",".",diff$Diff))
 diff$MDev <- as.numeric(gsub(",",".",diff$MDev))
+diff$SDDev <- as.numeric(gsub(",",".",diff$SDDev))
 diff$MDevSteeringAngle <- abs(as.numeric(gsub(",",".",diff$MDevSteeringAngle)))
 diff$DiffSteering <-abs(as.numeric(gsub(",",".",diff$DiffSteering)))
+diff$SDSteering <-abs(as.numeric(gsub(",",".",diff$SDSteering)))
 diff$Base <- diff$MDev - diff$Diff
 diff$Relative <- diff$MDev / diff$Base
-names(diff) <- c("File", "Proband", "Ref", "MDev", "MDevSteeringAngle", "Diff" ,"DiffSteering","Base", "Relative")
-result <- merge(result,diff[,c("Proband","MDev","Diff", "MDevSteeringAngle", "DiffSteering","Base","Relative")],by.x = "Proband", by.y = "Proband")
-result <- result[result$TotalGlance > 0,]
+diff <- subset(diff, select = -c(File,Ref))
+result <- merge(result,diff,by.x = "Proband", by.y = "Participant")
 
+diff_Straight_LC$DiffStraight <- as.numeric(gsub(",",".",diff_Straight_LC$DiffStraight))
+diff_Straight_LC$MDevStraight <- as.numeric(gsub(",",".",diff_Straight_LC$MDevStraight))
+diff_Straight_LC$SDDevStraight <- as.numeric(gsub(",",".",diff_Straight_LC$SDDevStraight))
+diff_Straight_LC$MDevSteeringAngleStraight <- abs(as.numeric(gsub(",",".",diff_Straight_LC$MDevSteeringStraight)))
+diff_Straight_LC$DiffSteeringStraight <-abs(as.numeric(gsub(",",".",diff_Straight_LC$DiffSteeringStraight)))
+diff_Straight_LC$BaseStraight <- diff_Straight_LC$MDevStraight - diff_Straight_LC$DiffStraight
+diff_Straight_LC$RelativeStraight <- diff_Straight_LC$MDevStraight / diff_Straight_LC$BaseStraight
+
+diff_Straight_LC$DiffLC <- as.numeric(gsub(",",".",diff_Straight_LC$DiffLC))
+diff_Straight_LC$MDevLC <- as.numeric(gsub(",",".",diff_Straight_LC$MDevLC))
+diff_Straight_LC$SDDevLC <- as.numeric(gsub(",",".",diff_Straight_LC$SDDevLC))
+diff_Straight_LC$MDevSteeringAngleLC <- abs(as.numeric(gsub(",",".",diff_Straight_LC$MDevSteeringLC)))
+diff_Straight_LC$DiffSteeringLC <-abs(as.numeric(gsub(",",".",diff_Straight_LC$DiffSteeringLC)))
+diff_Straight_LC$BaseLC <- diff_Straight_LC$MDevLC - diff_Straight_LC$DiffLC
+diff_Straight_LC$RelativeLC <- diff_Straight_LC$MDevLC / diff_Straight_LC$BaseLC
+
+diff_Straight_LC <- subset(diff_Straight_LC, select = -c(File,Ref))
+
+#names(diff_Straight_LC) <- c("File", "Proband", "Ref", "MDev", "MDevSteeringAngle", "Diff" ,"DiffSteering","Base", "Relative")
+result <- merge(result,diff_Straight_LC,by.x = "Proband", by.y = "Participant")
+
+result$Proband <- as.numeric(result$Proband)
+result <- result[order(result$Proband),] 
 ## END ##
 
 boxplot(diff$Diff, diff$MDev, result$TotalGlance/50000)
