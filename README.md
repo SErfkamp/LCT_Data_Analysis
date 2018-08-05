@@ -3,6 +3,8 @@
 Files in this repository help me analyzing driving performance data.
 Steps to use these scripts.
 
+Adjust input/output folders accordingly in every script.
+
 1. Format driving data.
    - Open the initial driving files. Delete all lines where the track number is 0 or 77. There are some at the start and some at the end of the file. You can write a simple script to do this. 
    - Use the convert.exe that is provided to convert the data for the LCTa tool. 
@@ -22,6 +24,7 @@ Steps to use these scripts.
    - Run lines 102 - end of the script. A plot should appear showing the glances' positions in a coordinate system. The blue lines should now be adjusted accordingly to correctly categorize the glances.
    - adjust the values and store the information in the "correction_values.csv" (not yet in this Repo)
    - If you are done, specify the input paths and output folder in line 2-4 
+   - And ru nthe first part of the script. This takes some time.
 4. Use the "createGlanceData.java" program to create new glance files for the data. 
    - Specify the input path to the folder of the just created files in R.
    - Specify the output folder.
