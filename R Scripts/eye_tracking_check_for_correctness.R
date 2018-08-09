@@ -1,7 +1,7 @@
 ### CONSTS ###
-FOLDER = "C:/Users/serfk/Documents/Thesis/Daten/Eye_tracking/CSVData/"
-OUTPUT_FOLDER = "C:/Users/serfk/Documents/Thesis/Daten/Eye_tracking/Corrected/"
-CORRECTION_FILE = "C:/Users/serfk/Documents/Thesis/Data Analysis/correction_values.csv"
+FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
+OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/Corrected/"
+CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv"
 
 
 ### READ CORRECTION FILE ###
@@ -23,14 +23,14 @@ corr$orig_0[is.na(corr$orig_0)] <- FALSE
 require(svMisc)
 
 result <- data.frame()
-pdf("C:/Users/serfk/Documents/Thesis/Data Analysis/glance_correction3.pdf")
+pdf("C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/glance_correction3.pdf")
 
 ### LOOP OVER RAW CSV GLANCE FILES ###
 files <- list.files(path=FOLDER, pattern="*.txt", full.names=T, recursive=FALSE)
 for(i in 1:length(files)) {
   progress(i,length(files), progress.bar = TRUE)
   
-
+  
   # READ FILE AND PREPARE DATA #
   t <- read.table(files[i], header=T, stringsAsFactors = FALSE, sep = "\t") # load file
   proband <- strsplit(files[i],"_")[[1]][3]
@@ -50,7 +50,7 @@ for(i in 1:length(files)) {
   orig_0 = corr$orig_0[corr$Proband == proband]
   
   if(is.na(slope)) next
-
+  
   # PLOT INITIAL #
   plot(t$X,t$Y,col=factor(1 + 2*t$Orig_Screen1 + t$Proc_Tablet1),main = paste("Proband", proband),xlim = c(0,3000), ylim = c(-400,1000))
   abline(a = y_distance, b = slope, col="blue")
@@ -103,7 +103,7 @@ dev.off()
 # FOR TESTING PURPOSES TO SET THE CORRECT AREA #
 
 
-SINGLE_FILE = FOLDER = "C:/Users/serfk/Documents/Thesis/Daten/Eye_tracking/CSVData/"
+SINGLE_FILE = FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
 FILE_NAME = "VP_18_1. Recording 25.08.2015 093053_CsvData"
 FILE_NAME = paste(FILE_NAME,".txt", sep = "")
 SINGLE_FILE = paste(SINGLE_FILE,FILE_NAME,sep="")

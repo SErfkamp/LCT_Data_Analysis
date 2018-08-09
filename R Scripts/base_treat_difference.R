@@ -1,6 +1,6 @@
 ### CONSTS ###
-PATH = "C:/Users/serfk/Documents/Thesis/Data Analysis/base_wisch_marker_only.csv" 
-#PATH = "C:/Users/serfk/Documents/Thesis/Data Analysis/base_wisch_marker_only_ADVANCED.csv" 
+PATH = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/base_wisch_marker_only.csv" 
+#PATH = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/base_wisch_marker_only_ADVANCED.csv" 
 
 
 ### READ FILE & PREPARE DATA ###

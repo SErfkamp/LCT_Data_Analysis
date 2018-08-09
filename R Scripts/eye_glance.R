@@ -1,8 +1,8 @@
 
 ## PREPARING DATA - BUILD UP EYE TRACKING DATA ##
 
-#files <- list.files(path="C:/Users/serfk/Documents/Thesis/Daten/Eye_Tracking/Corrected/output/error_corrected/", pattern="*.txt", full.names=T, recursive=FALSE)
-files <- list.files(path="C:/Users/serfk/Documents/Thesis/Daten/Eye_Tracking/Corrected/output/error_corrected/categorized/", pattern="*.txt", full.names=T, recursive=FALSE)
+#files <- list.files(path=C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/", pattern="*.txt", full.names=T, recursive=FALSE)
+files <- list.files(path="C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/categorized/", pattern="*.txt", full.names=T, recursive=FALSE)
 
 ### READ CORRECTION FILE ###
 CORRECTION_FILE = "C:/Users/serfk/Documents/Thesis/Data Analysis/correction_values.csv"
@@ -72,10 +72,10 @@ for(i in 1:length(files)) {
 
 
 ## APPEND PERFORMANCE DATA - WITH PREFORMATTED DATA ##
-#diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_simple.csv", header=T, stringsAsFactors = FALSE) # load file
-diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_iso.csv", header=T, stringsAsFactors = FALSE) # load file
-#diff <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_dlpa.csv", header=T, stringsAsFactors = FALSE) # load file
-diff_Straight_LC <- read.csv(sep = ";","C:/Users/serfk/Documents/Thesis/Data Analysis/results_iso_straight_lc.csv", header=T, stringsAsFactors = FALSE) # load file
+#diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_simple.csv", header=T, stringsAsFactors = FALSE) # load file
+diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_iso.csv", header=T, stringsAsFactors = FALSE) # load file
+#diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_dlpa.csv", header=T, stringsAsFactors = FALSE) # load file
+diff_Straight_LC <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_iso_straight_lc.csv", header=T, stringsAsFactors = FALSE) # load file
 
 
 diff$Diff <- as.numeric(gsub(",",".",diff$Diff))
