@@ -34,7 +34,6 @@ public class correctErrors {
         // Iterate through files
         File[] files = new File(FOLDER_GLANCE).listFiles((dir,name) -> !name.equals(".DS_Store"));
         
-        System.out.println(files);
 
         for (File file : files) {
         	if(!file.isFile()) continue;
