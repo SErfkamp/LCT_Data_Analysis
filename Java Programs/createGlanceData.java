@@ -31,16 +31,16 @@ public class createGlanceData {
     	startTime = currTime = prevTime = newTablet = prevTablet = 0;
     	
         // Iterate through files
-        File[] files = new File(FOLDER_GLANCE).listFiles();
+        File[] files = new File(FOLDER_GLANCE).listFiles((dir,name) -> !name.equals(".DS_Store"));
 
         for (File file : files) {
         	if(!file.isFile()) continue;
         	//output
-            Path outputPath = Paths.get(FOLDER_GLANCE + "output\\" + file.getName());
+            Path outputPath = Paths.get(FOLDER_GLANCE + "output" + File.separator + file.getName());  
             
             //read file
             try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
-            	
+            	            	
             	for(String s : (Iterable<String>)lines::iterator) {
             		        		
                 	String data ="";

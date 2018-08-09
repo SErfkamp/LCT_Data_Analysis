@@ -36,7 +36,7 @@ public class categorizeGlances {
 		//Probands *  Base/Wisch * No. of Sections * Start/End
 		int[][][][] straightSections = new int[31][2][18][2];
 		
-        File[] straightSectionFiles = new File(STRAIGHT_SECTION).listFiles();
+        File[] straightSectionFiles = new File(STRAIGHT_SECTION).listFiles((dir,name) -> !name.equals(".DS_Store"));
 
         for (File file : straightSectionFiles) {
         	
@@ -92,15 +92,15 @@ public class categorizeGlances {
     	int startTime, endTime, duration;
     	    	
         // Iterate through files
-        File[] files = new File(FOLDER_GLANCE).listFiles();
+        File[] files = new File(FOLDER_GLANCE).listFiles((dir,name) -> !name.equals(".DS_Store"));
 
         for (File file : files) {
         	if(!file.isFile()) continue;
         	//output
-            Path outputPath = Paths.get(FOLDER_GLANCE + "categorized\\" + file.getName());
+            Path outputPath = Paths.get(FOLDER_GLANCE + "categorized" + File.separator + file.getName());
             
             ArrayList<int[]> data = new ArrayList<int[]>();
-                        
+            
         	proband = Integer.parseInt(""+file.getName().charAt(0))-1;
         	offset = offsets[proband];
             
@@ -238,7 +238,7 @@ public class categorizeGlances {
 		double[] y_pos= {0.0,0.0,0.0};
 		
 		// Get driving file for proband
-        File file = new File(FOLDER_DRIVING + "\\" + (proband+1) + "_wisch.txt");
+        File file = new File(FOLDER_DRIVING + File.separator + (proband+1) + "_wisch.txt");
         
         //read file
         try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {

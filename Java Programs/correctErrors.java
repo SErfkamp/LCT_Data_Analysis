@@ -32,12 +32,14 @@ public class correctErrors {
     	int startTime, endTime, prevEndTime;
     	    	
         // Iterate through files
-        File[] files = new File(FOLDER_GLANCE).listFiles();
+        File[] files = new File(FOLDER_GLANCE).listFiles((dir,name) -> !name.equals(".DS_Store"));
+        
+        System.out.println(files);
 
         for (File file : files) {
         	if(!file.isFile()) continue;
         	//output
-            Path outputPath = Paths.get(FOLDER_GLANCE + "error_corrected\\" + file.getName());
+            Path outputPath = Paths.get(FOLDER_GLANCE + "error_corrected" + File.separator + file.getName());
             
             int i = startTime = endTime = prevEndTime = 0;
             ArrayList<int[]> data = new ArrayList<int[]>();
