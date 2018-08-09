@@ -1,7 +1,3 @@
-package correct_glance_data;
-
-
-
 
 import java.io.File;
 import java.io.IOException;
@@ -11,30 +7,29 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.stream.Stream;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class correctErrors {
 
 	
-	static final String FOLDER_GLANCE = "C:\\Users\\serfk\\Documents\\Thesis\\Daten\\Eye_tracking\\Corrected\\output";
-	static final int THRESHOLD = 199; //threshold in ms 
+	private String FOLDER_GLANCE;
+	private int THRESHOLD; //threshold in ms 
 	
-	public static void main(String[] args) 
-    {   
-    	correctErrors obj = new correctErrors();
-    	
-    	obj.run();
-    }
 	
+	public correctErrors(String FOLDER_GLANCE, int THRESHOLD) {
+		this.FOLDER_GLANCE = FOLDER_GLANCE;
+		this.THRESHOLD = THRESHOLD;
+	}
+
     void run () {
     	
     	// Iterate through created glance data and check for gaps that are too small
     	// Check if Glances are longer than Threshold to filter unrealistic values
     	
+    	System.out.println("Start correctErrors");
+
     	
-    	
-    	int startTime, endTime, duration, prevStartTime, prevEndTime, prevDuration;
+    	int startTime, endTime, prevEndTime;
     	    	
         // Iterate through files
         File[] files = new File(FOLDER_GLANCE).listFiles();
@@ -42,9 +37,9 @@ public class correctErrors {
         for (File file : files) {
         	if(!file.isFile()) continue;
         	//output
-            Path outputPath = Paths.get(FOLDER_GLANCE + "\\error_corrected\\" + file.getName());
+            Path outputPath = Paths.get(FOLDER_GLANCE + "error_corrected\\" + file.getName());
             
-            int i = startTime = endTime = duration = prevEndTime = prevStartTime = prevDuration = 0;
+            int i = startTime = endTime = prevEndTime = 0;
             ArrayList<int[]> data = new ArrayList<int[]>();
             
             //read file
@@ -69,9 +64,6 @@ public class correctErrors {
                 	
                 	startTime = Integer.parseInt(line[1]);
                 	endTime = Integer.parseInt(line[2]);
-                	duration = Integer.parseInt(line[3]);
-                	
-                	
                 	// if difference between current start time and old end time is smaller than threshold 
                 	// combine these two lines and write to file
                 	if(startTime - prevEndTime < THRESHOLD && i >= 1) {
@@ -89,9 +81,7 @@ public class correctErrors {
                 		i++;
                 	}
           	
-                	prevStartTime = startTime;
                 	prevEndTime = endTime;
-                	prevDuration = duration;
 
                 }
             	
@@ -115,5 +105,6 @@ public class correctErrors {
             }
 
         }
-    };
+    	System.out.println("End correctErrors");
+    }
 }

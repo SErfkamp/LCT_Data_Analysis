@@ -1,4 +1,3 @@
-package create_glance_data;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,20 +13,19 @@ public class createGlanceData {
 
 
 	
-	static final String FOLDER_GLANCE = "C:\\Users\\serfk\\Documents\\Thesis\\Daten\\Eye_tracking\\Corrected\\";
+	private String FOLDER_GLANCE;
 	
-	public static void main(String[] args) 
-    {   
-    	createGlanceData obj = new createGlanceData();
-    	
-    	obj.run();
-    }
+
+	public createGlanceData(String FOLDER_GLANCE) {
+		this.FOLDER_GLANCE = FOLDER_GLANCE; 
+	}
 	
     void run () {
     	
     	// Iterate through raw glance data and check for newGlance == 1
     	// Iterate as long as it is 1, save into file once it is == 0, save Start Time and End Time and Duration
     	
+    	System.out.println("Start createGlanceData");
     	
     	int startTime, currTime, prevTime, newTablet, prevTablet;
     	startTime = currTime = prevTime = newTablet = prevTablet = 0;
@@ -38,7 +36,7 @@ public class createGlanceData {
         for (File file : files) {
         	if(!file.isFile()) continue;
         	//output
-            Path outputPath = Paths.get(FOLDER_GLANCE + "\\output\\" + file.getName());
+            Path outputPath = Paths.get(FOLDER_GLANCE + "output\\" + file.getName());
             
             //read file
             try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
@@ -68,6 +66,7 @@ public class createGlanceData {
                 	} catch (Exception cep) {
                     	System.out.println("WTF");
                     	System.out.println("Filename:" + outputPath);
+                    	cep.printStackTrace();
                		
                 	}
                 	
@@ -102,5 +101,6 @@ public class createGlanceData {
             }
 
         }
-    };
+    	System.out.println("End createGlanceData");
+    }
 }

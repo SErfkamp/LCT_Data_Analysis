@@ -1,4 +1,3 @@
-package define_straight_sections;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,26 +7,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
 
 public class defineStraightSections {
-	static final String PATH_SIGNS = "C:\\Users\\serfk\\Documents\\Thesis\\LCTa - ISO26022\\LCTSigns.txt";
-	static final String PATH_OUTPUT = "C:\\Users\\serfk\\Documents\\Thesis\\Daten\\Straight_Sections";
-	static final String CORRECTION_FILE = "C:\\Users\\serfk\\Documents\\Thesis\\Data Analysis\\correction_values.csv";
+	private String PATH_SIGNS;
+	private String PATH_OUTPUT;
+	private String CORRECTION_FILE;
 	
-	public static void main(String[] args) 
-    {   
-    	defineStraightSections obj = new defineStraightSections();
-    	
-    	obj.run();
-    }
-    
-    void run () {
-    	
+	
+    public defineStraightSections(String PATH_SIGNS, String PATH_OUTPUT, String CORRECTION_FILE) {
+		super();
+		this.PATH_SIGNS = PATH_SIGNS;
+		this.PATH_OUTPUT = PATH_OUTPUT;
+		this.CORRECTION_FILE = CORRECTION_FILE;
+	}
+
+	void run () {
+    	System.out.println("Start defineStraightSections");
+
     	int[] tracks = {0, 3335, 6510, 9783, 12985, 16279, 19525, 22843, 26113, 29383};
   	
     	double signs[][] = new double[10][19];
@@ -110,8 +109,8 @@ public class defineStraightSections {
         		
 	    		sign_pos = signsCurrent_base[j];
 	    		
-	        	dataBase.add(start_track_base + sign_pos - lc_start -2);
-	    		dataBase.add(start_track_base + sign_pos + lc_end + 2);
+	        	dataBase.add(start_track_base + sign_pos - lc_start);
+	    		dataBase.add(start_track_base + sign_pos + lc_end);
         		
         	}
         	
@@ -124,8 +123,8 @@ public class defineStraightSections {
         		
 	    		sign_pos = signsCurrent_wisch[j];
 	    		
-	        	dataWisch.add(start_track_wisch + sign_pos - lc_start -2);
-	    		dataWisch.add(start_track_wisch + sign_pos + lc_end +2);
+	        	dataWisch.add(start_track_wisch + sign_pos - lc_start);
+	    		dataWisch.add(start_track_wisch + sign_pos + lc_end);
         		
         	}    
         	
@@ -137,7 +136,8 @@ public class defineStraightSections {
         	createFileForProband(i, dataBase, "base");
         	createFileForProband(i, dataWisch, "wisch");
         }
-        
+    	System.out.println("End defineStraightSections");
+
     }
     
     private void createFileForProband(int proband, ArrayList<Double> data, String run) {

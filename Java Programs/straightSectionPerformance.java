@@ -1,5 +1,3 @@
-package straight_section_performance;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,28 +6,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.stream.Stream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 
 public class straightSectionPerformance {
 	
-	static final String PATH_SIGNS = "C:\\Users\\serfk\\Documents\\Thesis\\LCTa - ISO26022\\LCTSigns.txt";
-	static final String PATH_DRIVING = "C:\\Users\\serfk\\Documents\\Thesis\\Daten\\Driving";
-	static final String STRAIGHT_SECTION =	"C:\\Users\\serfk\\Documents\\Thesis\\Daten\\Straight_Sections";
-	static final String CORRECTION_FILE = "C:\\Users\\serfk\\Documents\\Thesis\\Data Analysis\\correction_values.csv";
+	private String PATH_DRIVING;
+	private String STRAIGHT_SECTION;
+	private String CORRECTION_FILE;
+	
 
-	public static void main(String[] args) 
-    {   
-    	straightSectionPerformance obj = new straightSectionPerformance();
-    	
-    	obj.run();
-    }
-    
-    void run () {
+    public straightSectionPerformance(String PATH_DRIVING, String STRAIGHT_SECTION, String CORRECTION_FILE) {
+		this.PATH_DRIVING = PATH_DRIVING;
+		this.STRAIGHT_SECTION = STRAIGHT_SECTION;
+		this.CORRECTION_FILE = CORRECTION_FILE;
+	}
+
+
+	void run () {
+		
+    	System.out.println("Start straightSectionPerformance");
+
     	
 		int probandIndex = 0;
 		int straightSectionIndex = 0;
@@ -145,7 +143,7 @@ public class straightSectionPerformance {
 	                	if (y_pos > upper_range && j < straightSections[proband][run].length-1) {
 	                		j+=1;
 	                	}
-	                	System.out.println(proband + " - " + run + " - " + lower_range + " - " + y_pos + " - " + upper_range);
+	                	//System.out.println(proband + " - " + run + " - " + lower_range + " - " + y_pos + " - " + upper_range);
 	                	
 	                	if (run == 0 || isUsingIVIS(currentTime, proband, usingTimestamps)) { 
 	                		
@@ -178,7 +176,7 @@ public class straightSectionPerformance {
 	        }
     	//iterate through all driving files and update AdditionalMarker
     	
-    	
+	    System.out.println("End straightSectionPerformance");
 
     }
     

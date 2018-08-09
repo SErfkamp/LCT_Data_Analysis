@@ -1,16 +1,9 @@
-package openDS_lc_task_to_default_tracks;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -36,42 +28,82 @@ import org.xml.sax.SAXException;
 
 public class ConvertOpenDSLCTaskToSDefaultTask {
 	
-	static final String PATH_SIGNS = "C:\\Users\\serfk\\Documents\\Thesis\\LCTa - ISO26022\\LCTSigns.txt";
-	static final String PATH_LCT = "C:\\Users\\serfk\\Documents\\Thesis\\opends45\\assets\\DrivingTasks\\Projects\\LaneChangeTest\\";
+	private String PATH_SIGNS = "C:\\Users\\serfk\\Documents\\Thesis\\LCTa - ISO26022\\LCTSigns.txt";
+	private String PATH_LCT = "C:\\Users\\serfk\\Documents\\Thesis\\opends45\\assets\\DrivingTasks\\Projects\\LaneChangeTest\\";
+	static final String[] signDirections = {"Right","Center","Left"};
+	int[][] lcTypes = new int[10][19];
 
 
-	public static void main(String[] args) {
+	public ConvertOpenDSLCTaskToSDefaultTask(String PATH_SIGNS, String PATH_LCT) {
+		this.PATH_SIGNS = PATH_SIGNS;
+		this.PATH_LCT = PATH_LCT;
+	}
+
+	void run () {
 		
-    	ConvertOpenDSLCTaskToSDefaultTask obj = new ConvertOpenDSLCTaskToSDefaultTask();
-    	
-    	obj.run();
-    }
-    
-    void run () {
+    	System.out.println("Start trackConvert");
+
     	
     	int[] tracks = {0, 3335, 6510, 9783, 12985, 16279, 19525, 22843, 26113, 29383};
     	double signs[][] = this.readSignsFromFile();
+		// offset : difference between default track and openDS track
+    	int offset;
         
     	DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-    	DocumentBuilder b;
+    	DocumentBuilder b,b2;
 		try {
 			b = f.newDocumentBuilder();
-		
+			//b2 = f.newDocumentBuilder();
+			
 	    	Document doc = b.parse(new File(PATH_LCT + "scene.xml"));
 	    	XPath xPath = XPathFactory.newInstance().newXPath();
 	    	
-	    	for (int i = 0; i < tracks.length; i++) {
+	    	//Document docScenario = b2.parse(new File(PATH_LCT + "scenario.xml"));
+	    	//XPath xPathScenario = XPathFactory.newInstance().newXPath();
+	    	
+	    	for (int i = 0; i < tracks.length; i++) {	
+    	    	
+    	    	/*Node idealTrackNode = (Node) xPathScenario
+    	    			.compile("//idealTrack[@id='lane0" + i + "']/point[@ref='point_0" + i + "_00']//entry[3]")
+    	    			.evaluate(docScenario, XPathConstants.NODE);
+    	    	
+    	    	double middleOfTrack = Double.parseDouble(idealTrackNode.getTextContent());
+    	    	
+    	    	System.out.println(idealTrackNode.getTextContent());
+    	    	System.out.println(middleOfTrack);
+    	    	
+    	    	Node roadNode = (Node) xPathScenario
+    	    			.compile("//road")
+    	    			.evaluate(docScenario, XPathConstants.NODE);
+    	    	
+    	    	Node xMin = docScenario.createElement("xMin");
+    	    	Node xMax = docScenario.createElement("xMax");
+    	    	
+    	    	double xMinD = Math.round((middleOfTrack - 5.775)*1000)/1000.0;
+    	    	double xMaxD = Math.round((middleOfTrack + 5.775)*1000)/1000.0;
+    	    	
+    	    	xMin.setTextContent( xMinD + "");
+    	    	xMax.setTextContent( xMaxD + "");
+    	    	
+    	    	Node newLaneNode = docScenario.createElement("lane");
+    	    	newLaneNode.appendChild(xMin);
+    	    	newLaneNode.appendChild(xMax);
+    	    	
+    	    	roadNode.appendChild(newLaneNode);
+    	    	*/
 	    		
-	    		// offset : difference between default track and openDS track
-    	    	int offset = 1650;
+
     	    	
     	    	if(i%2 == 0) {
     	    		//starting at 1 to skip start sign
     	    		for (int j = 1; j < signs[i].length; j++) {
     	    			
-    	    			double newSignPos = offset-Math.round(signs[i][j]*100)/100.0;
+    	    			offset = 1650;
+    	    			
+    	    			double newSignPos = Math.round((offset-signs[i][j])*100.0)/100.0;
     	    			String signString = j < 10 ? i + "0" + j : i + "" + j;
-    	    			System.out.println(signString + " - " + signs[i][j] + " - " + newSignPos);
+    	    			String newSignDirection = "Scenes/SLCTask/Sign_" + signDirections[lcTypes[i][j]] + ".scene";
+    	    			System.out.println(signString + " - " + signs[i][19-j] + " - " + newSignPos  + " - " + newSignDirection);
     	    	    	
     	    	    	Node signPosNodeLeft = (Node) xPath
     	    	    			.compile("//model[@id='LeftBoxSign" + signString + "']/translation//entry[1]")
@@ -89,22 +121,32 @@ public class ConvertOpenDSLCTaskToSDefaultTask {
     	    	    			.compile("//model[@id='triggerBox" + signString + "']/translation//entry[1]")
     	    	    			.evaluate(doc, XPathConstants.NODE);
     	    	    	
+    	    	    	Node lcTypeNode = (Node) xPath
+    	    	    			.compile("//model[@id='Sign" + signString + "']")
+    	    	    			.evaluate(doc, XPathConstants.NODE);
+    	    	    	
+    	    	    	
+    	    	    	Node lcNode = lcTypeNode.getAttributes().getNamedItem("key");	    	    	    	
+    	    	    	lcNode.setTextContent(newSignDirection);
     	    	    	
     	    	    	signPosNodeLeft.setTextContent(""+newSignPos);	    
     	    	    	signPosNodeRight.setTextContent(""+newSignPos);	
     	    	    	signPosNode.setTextContent(""+newSignPos);
     	    	    	triggerBoxNode.setTextContent(""+ (newSignPos+40.0));
 
-    	    	    	
     	    		}
     	    	} else {
     	    		//starting at 1 to skip start sign
     	    		for (int j = 18; j > 0; j--) {
     	    			
-    	    			double newSignPos = offset-Math.round(signs[i][19-j]*100)/100.0;
+    	    			offset = 1500;
+    	    			
+    	    			double newSignPos = Math.round((signs[i][19-j]-offset)*100.0)/100.0;
     	    			String signString = j < 10 ? i + "0" + j : i + "" + j;
-    	    			System.out.println(signString + " - " + signs[i][19-j] + " - " + newSignPos);
-    	    	    	
+    	    			String newSignDirection = "Scenes/SLCTask/Sign_" + signDirections[Math.abs(lcTypes[i][19-j]-2)] + ".scene";
+    	    			//System.out.println(signString + " - " + signs[i][19-j] + " - " + newSignPos  + " - " + newSignDirection);
+    	    			
+    	    			//1.0 in Datenbanken2 - Kemper wäre stolz
     	    	    	Node signPosNodeLeft = (Node) xPath
     	    	    			.compile("//model[@id='LeftBoxSign" + signString + "']/translation//entry[1]")
     	    	    			.evaluate(doc, XPathConstants.NODE);
@@ -121,65 +163,23 @@ public class ConvertOpenDSLCTaskToSDefaultTask {
     	    	    			.compile("//model[@id='triggerBox" + signString + "']/translation//entry[1]")
     	    	    			.evaluate(doc, XPathConstants.NODE);
     	    	    	
+    	    	    	Node lcTypeNode = (Node) xPath
+    	    	    			.compile("//model[@id='Sign" + signString + "']")
+    	    	    			.evaluate(doc, XPathConstants.NODE);
+    	    	    	
+    	    	    	Node lcNode = lcTypeNode.getAttributes().getNamedItem("key");	    	    	    	
+    	    	    	lcNode.setTextContent(newSignDirection);
     	    	    	
     	    	    	signPosNodeLeft.setTextContent(""+newSignPos);	    
     	    	    	signPosNodeRight.setTextContent(""+newSignPos);	
     	    	    	signPosNode.setTextContent(""+newSignPos);
     	    	    	triggerBoxNode.setTextContent(""+ (newSignPos-40.0));
-
-    	    	    	
-    	    		}
-    	    		
-    	    		
+	    	    	
+    	    		}  	    		
     	    	}
-    	    	
-	    		
-//    	    	Node triggerStartRecording = (Node) xPath
-//    	    			.compile("//model[@id='triggerBox_S0" + i + "']/translation//entry[1]")
-//    	    			.evaluate(doc, XPathConstants.NODE);
-//    	    	
-//    	    	Node triggerEndRecording = (Node) xPath
-//    	    			.compile("//model[@id='triggerBox_E0" + i + "']/translation//entry[1]")
-//    	    			.evaluate(doc, XPathConstants.NODE);
-//    	    	
-//    	    	triggerStartRecording.setTextContent("" + tracks[i]);
-//    	    	triggerEndRecording.setTextContent("" + tracks[i]+signs[i][signs[i].length-1]);
-//	    		
-	    		//starting at 1 to skip start sign
-//	    		for (int j = 1; j < signs[i].length-1; j++) {
-//	    			
-//	    			String newSignPos = ""+signs[i][j];
-//	    			String signString = j < 9 ? i + "0" + (j+1) : i + "" + (j+1);
-//	    			System.out.println(signString);
-//	    	    	
-//	    	    	//1.0 in Datenbanken2 - Kemper wäre stolz
-//	    	    	Node signPosNodeLeft = (Node) xPath
-//	    	    			.compile("//model[@id='LeftBoxSign" + signString + "']/translation//entry[1]")
-//	    	    			.evaluate(doc, XPathConstants.NODE);
-//	    	    	
-//	    	    	Node signPosNodeRight = (Node) xPath
-//	    	    			.compile("//model[@id='RightBoxSign" + signString + "']/translation//entry[1]")
-//	    	    			.evaluate(doc, XPathConstants.NODE);
-//	    	    	
-//	    	    	Node signPosNode = (Node) xPath
-//	    	    			.compile("//model[@id='Sign" + signString + "']/translation//entry[1]")
-//	    	    			.evaluate(doc, XPathConstants.NODE);
-//	    	    	
-//	    	    	Node triggerBoxNode = (Node) xPath
-//	    	    			.compile("//model[@id='triggerBox" + signString + "']/translation//entry[1]")
-//	    	    			.evaluate(doc, XPathConstants.NODE);
-//	    	    	
-//	    	    	
-//	    	    	signPosNodeLeft.setTextContent(newSignPos);	    
-//	    	    	signPosNodeRight.setTextContent(newSignPos);	
-//	    	    	signPosNode.setTextContent(newSignPos);
-//	    	    	triggerBoxNode.setTextContent(newSignPos);
-//
-//	    	    	
-//	    		}
-//	    		
 	    	}
-	    	  			
+    	    	
+	    					
 	    	//write to file
 			Transformer tf = TransformerFactory.newInstance().newTransformer();
 			tf.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -189,15 +189,20 @@ public class ConvertOpenDSLCTaskToSDefaultTask {
 			DOMSource domSource = new DOMSource(doc);
 			StreamResult sr = new StreamResult(new File(PATH_LCT + "scene.xml"));
 			tf.transform(domSource, sr);
+			
+			//DOMSource domSourceScenario = new DOMSource(docScenario);
+			//StreamResult srScenario = new StreamResult(new File(PATH_LCT + "scenario.xml"));
+			//tf.transform(domSourceScenario, srScenario);
 		
 		} catch (ParserConfigurationException | XPathExpressionException | SAXException | IOException | TransformerFactoryConfigurationError | TransformerException e) {
 			e.printStackTrace();
 		}
+    	System.out.println("End trackConvert");
 
     }
     
     private double[][] readSignsFromFile() {
-    	double signs[][] = new double[10][19];
+    	double[][] signs = new double[10][19];
     	
         // Read LCTSign File
         // Track | LCNumber | LCType | Position
@@ -209,10 +214,11 @@ public class ConvertOpenDSLCTaskToSDefaultTask {
             {        
             	int trackTemp = Integer.parseInt(s.split("\\s+")[1])-1; 
             	int signNo = Integer.parseInt(s.split("\\s+")[2]);
-            	//int lcType = Integer.parseInt(s.split("\\s+")[3]);
+            	int lcType = Integer.parseInt(s.split("\\s+")[3]);
             	double pos = Double.parseDouble(s.split("\\s+")[4]); 
             	
             	signs[trackTemp][signNo] = pos;
+            	lcTypes[trackTemp][signNo] = lcType;
             });
         } catch (IOException ex) {
           	ex.printStackTrace();
