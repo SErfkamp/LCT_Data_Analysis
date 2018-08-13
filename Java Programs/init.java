@@ -50,11 +50,11 @@ public class init {
 
 
 		
-    	createGlanceData obj1 = new createGlanceData(FOLDER_GLANCE);    	
-    	obj1.run();
+    	//createGlanceData obj1 = new createGlanceData(FOLDER_GLANCE);    	
+    	//obj1.run();
     	
-    	correctErrors obj2 = new correctErrors(FOLDER_GLANCE + "output" + File.separator, THRESHOLD);    	
-    	obj2.run();    	
+    	//correctErrors obj2 = new correctErrors(FOLDER_GLANCE + "output" + File.separator, THRESHOLD);    	
+    	//obj2.run();    	
     	
     	categorizeGlances obj3 = new categorizeGlances(FOLDER_GLANCE + "output" + File.separator + "error_corrected" + File.separator, PATH_DRIVING, CORRECTION_FILE, STRAIGHT_SECTION);
     	obj3.run();

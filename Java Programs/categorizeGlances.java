@@ -18,6 +18,8 @@ public class categorizeGlances {
 	 private String FOLDER_DRIVING;
 	 private String CORRECTION_FILE;
 	 private String STRAIGHT_SECTION;
+	 
+	 private int[] lc_durations;
 	
     public categorizeGlances(String FOLDER_GLANCE, String FOLDER_DRIVING, String CORRECTION_FILE,
 			String STRAIGHT_SECTION) {
@@ -35,6 +37,7 @@ public class categorizeGlances {
 		int straightSectionIndex = 0;
 		//Probands *  Base/Wisch * No. of Sections * Start/End
 		int[][][][] straightSections = new int[31][2][18][2];
+		lc_durations = new int[31];
 		
         File[] straightSectionFiles = new File(STRAIGHT_SECTION).listFiles((dir,name) -> !name.equals(".DS_Store"));
 
@@ -82,8 +85,8 @@ public class categorizeGlances {
 			    
 			    if(cells[0].equals("Proband")) continue;
 			    
-            	offsets[offsetIndex++] = Integer.parseInt(cells[8]);       
-
+            	lc_durations[offsetIndex] = Integer.parseInt(cells[14]);
+            	offsets[offsetIndex++] = Integer.parseInt(cells[8]);  
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
@@ -99,9 +102,9 @@ public class categorizeGlances {
         	//output
             Path outputPath = Paths.get(FOLDER_GLANCE + "categorized" + File.separator + file.getName());
             
-            ArrayList<int[]> data = new ArrayList<int[]>();
+            ArrayList<String[]> data = new ArrayList<String[]>();
             
-        	proband = Integer.parseInt(""+file.getName().charAt(0))-1;
+        	proband = Integer.parseInt(file.getName().split("\\.")[0]) - 1;
         	offset = offsets[proband];
             
             //read file
@@ -115,7 +118,7 @@ public class categorizeGlances {
             		//write *header to output file and continue
                 	//AOI	Start_Time	End_Time	Duration
                 	if(line[0].equals("AOI")) {
-                		header = "AOI\tStart_Time\tEnd_Time\tDuration\tStraight_Section" + System.getProperty("line.separator");
+                		header = "AOI\tStart_Time\tEnd_Time\tDuration\tStraight_Section\tLC_Start\tLC_During\tLC_end" + System.getProperty("line.separator");
                         try {
     						Files.write(outputPath, header.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     					} catch (IOException e) {
@@ -127,15 +130,16 @@ public class categorizeGlances {
                 	startTime = Integer.parseInt(line[1]);
                 	endTime = Integer.parseInt(line[2]);
                 	duration = Integer.parseInt(line[3]);
-                	
-                	int straightSection = getTypeForGlance(startTime-offset, endTime-offset, duration, proband, straightSections);
-                	int[] newLine = new int[]{startTime, endTime, duration, straightSection};
+                	double[] category = getTypeForGlance(startTime-offset, endTime-offset, duration, proband, straightSections);
+                	String[] newLine = new String[]{""+startTime, ""+endTime, ""+duration, ""+category[0], ""+category[1], ""+category[2], ""+category[3]};
                 	data.add(newLine);
                 }
             	
-            	for(int[] dataLine : data) {
-            		String outputLine = "Tablet1\t" + dataLine[0] + "\t" + dataLine[1] + "\t" + dataLine[2]+ "\t" + dataLine[3] + System.getProperty("line.separator");
-	
+            	for(String[] dataLine : data) {
+            		String outputLine = "Tablet1\t" + dataLine[0] + "\t" + dataLine[1] + "\t" + dataLine[2]+ "\t" 
+            				+ dataLine[3] + "\t" + dataLine[4] + "\t" + dataLine[5] + "\t" + dataLine[6]
+            						+ System.getProperty("line.separator");
+            				
                     // write to new file
                     try {
     					Files.write(outputPath, outputLine.getBytes(),StandardOpenOption.APPEND);
@@ -153,41 +157,144 @@ public class categorizeGlances {
     	System.out.println("End categorizeGlances");
 
     }
+	
     
-	private int getTypeForGlance(int startTime, int endTime, int duration, int proband, int[][][][] straightSections) {
+	private double[] getTypeForGlance(int startTime, int endTime, int duration, int proband, int[][][][] straightSections) {
 		
+		// 0: distance Straight, 1: dist. LC Start, 2: dist. LC During, 3: dist. LC End
+		double[] result = new double[4];
+
 		double[] y_positions = getYPosFromTimestamp(startTime, endTime, proband);
 		double glance_start = y_positions[0];
 		double glance_end = y_positions[1];
-		//int track = (int) y_positions[2];
+						
+		int lc_duration = lc_durations[proband];
 		
+		System.out.println("Proband" + " - " + proband+1 + " - LC Duration: " + lc_duration + " -  G_S: " + glance_start + " -  G_E: " + glance_end);
+
 
         for(int k = 0; k < straightSections[proband][1].length; k++) {
         	
-        	int section_start = straightSections[proband][1][k][0];
-        	int section_end = straightSections[proband][1][k][1];
+        	int straight_start = straightSections[proband][1][k][0];
+        	int straight_end = straightSections[proband][1][k][1];
+        	
+    		System.out.println("Section" + " - S:" + straight_start + " - E: " + straight_end);
+        	
+        	// Glance not in relevant area -> continue
+        	if(glance_start > straight_end + lc_duration || glance_end < straight_start) continue;  
+        	
+        	// bounds for the 4 possible sections
+        	double lowerBound = straight_start;
+        	double upperBound = straight_end;
+        	
+        	//iterate through all 4 possible sections: straight, lc_start, lc_during, lc_end
+        	for (int i = 0; i < 4; i++) {
+        		double upperValue;
+        		double lowerValue;
+        		
+        		if(glance_start <= upperBound && glance_end >= lowerBound) {
+        			
+            		if (glance_end > upperBound) {
+            			upperValue = upperBound;
+            		} else {
+            			upperValue = glance_end;
+            		}
+            		
+            		if(glance_start < lowerBound) {
+            			lowerValue = lowerBound;
+            		} else {
+            			lowerValue = glance_start;
+            		}
+            		
+            		//System.out.println("Values: " + lowerValue + " - " + upperValue);
+            		
+            		result[i] = Math.round(Math.abs(upperValue - lowerValue)*100d)/100d;
+        		}      	
+				
+        		lowerBound = i == 0? straight_end : 
+        					 i == 1? straight_end + 0.25 * lc_duration : 
+        					 straight_end + 0.75 * lc_duration;
+        		
+        		upperBound = i == 0? lowerBound + 0.25 * lc_duration : 
+					 		 i == 1? lowerBound + 0.5 * lc_duration : 
+					 			 lowerBound + 0.25 * lc_duration;
+        		
+        		//System.out.println("Bounds : -" + lowerBound + " - " + upperBound);
+
+			}
+        }
+        
+        return result;
+	}
+        	
+        	/*
+        	
+        	if(glance_start < straight_start && glance_end > straight_start && glance_end < straight_end) {
+        		distStraight += Math.abs(glance_end - straight_start);
+        	}
+        	
+        	if(glance_start > straight_start) {
+        		if(glance_end > straight_end) {
+        			distStraight += Math.abs(straight_end - glance_start);
+        		} else {
+        			distStraight += glance_duration;
+        		}
+        	}
+        	
+        	if(glance_start > straight_end) {
+        		if(glance_start < lc_start_end) {
+        			if (glance_end >= lc_start_end) {
+            			distLCStart += Math.abs(lc_start_end - straight_end);
+        			} else {
+        				distLCStart += Math.abs(glance_end - glance_start);
+        			}
+        		}
+        		
+        		if(glance_end >= lc_start)
+        	}
+        	
+        	if(glance_start >= straight_start && glance_end <= straight_end) {
+        		distStraight += glance_duration;
+        	}
+        	
+        	if(glance)
+        	
+    		double distStraight = straight_end - glance_start;
+    		double distLC = glance_end - straight_end;
+    		double distLCStart = glance_end - straight_end;
+    		double distLCDuring = glance_end - straight_end;
+    		double distLCEnd = glance_end - straight_end;
+
+    		
+    		
+    		
+    		
+
         	
         	// if start is already too small all following section will also be too big -> return 1;
-        	if(glance_start <= section_start) {
+        	if(glance_start <= straight_start) {
+        		result[0] = 1;
         		return 1;
         	}
             	
-        	if(glance_start >= section_start && glance_start <= section_end) {
-        		if (glance_end <= section_end) {
+        	if(glance_start >= straight_start && glance_start <= straight_end) {
+        		if (glance_end <= straight_end) {
         			return 0;
         		}
         		
-        		double distStraight = section_end - glance_start;
-        		double distLC = glance_end - section_end;
+        		double distStraight = straight_end - glance_start;
+        		double distLC = glance_end - straight_end;
         		
         		// if glance is longer in the straight section return it as straight section glance
         		return distStraight >= distLC ? 1 : 0;
         	}
+        	prevSection_start = straight_start;
+        	prevSection_end = straight_end;
         }
         
     	return 1;    
     	
-  /*
+  
 		double glance_duration = lc_durations[proband];
 			
 
@@ -196,15 +303,6 @@ public class categorizeGlances {
         	int section_start = straightSections[proband][1][k][0];
         	int section_end = straightSections[proband][1][k][1];
         	
-    		//25% - 50% - 25% Split Start - During - End
-    		double lc_start_Section_start = section_end;
-    		double lc_start_Section_end = section_end + 0.25 * glance_duration;
-    		
-    		double lc_during_Section_start = section_end + 0.26 * glance_duration;
-    		double lc_during_Section_end = section_end + 0.74 * glance_duration; 
-
-    		double lc_end_Section_start = section_end + 0.75 * glance_duration;
-    		double lc_end_Section_end = section_end + glance_duration; 
     		
 //        	
 //        	// if start is already too small all following section will also be too big -> return 1;
@@ -230,12 +328,12 @@ public class categorizeGlances {
         		distStart = glance_end >= lc_start_Section_end ? lc_start_Section_end - section_end : glance_end - section_end;
         		distDuring = glance_end >= lc_during_Section_end ? lc_during_Section_end - lc_during_Section_start : glance_end - section_end;
         		distEnd = glance_end >= lc_end_Section_end ? lc_end_Section_end - section_end : glance_end - section_end;     
-	
-   */
-	}
+	*/
 	
 	private double[] getYPosFromTimestamp(int startTime, int endTime, int proband) {
 		double[] y_pos= {0.0,0.0,0.0};
+		
+		boolean start = true;
 		
 		// Get driving file for proband
         File file = new File(FOLDER_DRIVING + File.separator + (proband+1) + "_wisch.txt");
@@ -250,7 +348,8 @@ public class categorizeGlances {
             	
             	int currentTime = (int) (Double.parseDouble(line[0]) * 1000);
 
-            	if(startTime <= currentTime) {
+            	if(startTime <= currentTime && start) {
+            		start = false;
             		y_pos[0] = Double.parseDouble(line[2]);
             	}
             	
@@ -263,6 +362,7 @@ public class categorizeGlances {
         } catch (IOException ex) {
           	ex.printStackTrace();
         }
+        System.out.println("getYPosFromTimestamp: " + y_pos[0] + " -- " + y_pos[1]);
     	return y_pos;
 
 	}
