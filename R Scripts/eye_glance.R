@@ -13,7 +13,7 @@ for(i in 1:length(files)) {
 
   t <- read.table(files[i], header=T, stringsAsFactors = FALSE) # load file
   
-  proband <- strsplit(files[i],"/")[[1]][12]
+  proband <- strsplit(files[i],"/")[[1]][13]
   proband <- strsplit(proband, "\\.")[[1]][1]
   
   #filter out glances where proband didnt interact
@@ -35,16 +35,24 @@ for(i in 1:length(files)) {
   avgGlance = mean(t$Duration[grepl("Tablet",t$AOI)])
   numGlances = sum(grepl("Tablet",t$AOI))
   maxGlance = max(t$Duration[grepl("Tablet",t$AOI)],na.rm = TRUE)
+
+  straightDist = sum(t$Straight_Section[grepl("Tablet",t$AOI)])
+  lcStartDist = sum(t$LC_Start[grepl("Tablet",t$AOI)])
+  lcDuringDist = sum(t$LC_During[grepl("Tablet",t$AOI)])
+  lcEndDist = sum(t$LC_end[grepl("Tablet",t$AOI)])
   
-  totalGlanceStraight = sum(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==1])
-  avgGlanceStraight = mean(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==1])
-  numGlancesStraight = sum(grepl("Tablet",t$AOI) & t$Straight_Section==1)
-  maxGlanceStraight = max(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==1],na.rm = TRUE)
+  totalDist = straightDist + lcStartDist + lcDuringDist + lcEndDist
   
-  totalGlanceLC = sum(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==0])
-  avgGlanceLC = mean(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==0])
-  numGlancesLC = sum(grepl("Tablet",t$AOI) & t$Straight_Section==0)
-  maxGlanceLC = max(t$Duration[grepl("Tablet",t$AOI) & t$Straight_Section==0],na.rm = TRUE)
+  glanceStraight = straightDist/totalDist * totalGlance
+  glanceLCStart = lcStartDist/totalDist * totalGlance
+  glanceLCDuring = lcDuringDist/totalDist * totalGlance
+  glanceLCEnd = lcEndDist/totalDist * totalGlance
+  
+  glanceStraightPercentage = straightDist/totalDist
+  glanceLCStartPercentage = lcStartDist/totalDist
+  glanceLCDuringPercentage = lcDuringDist/totalDist
+  glanceLCEndPercentage = lcEndDist/totalDist
+  
   
   glanceOver500 = sum(grepl("Tablet",t$AOI) & t$Duration >= 500 & t$Duration < 1000)
   glanceOver1000 = sum(grepl("Tablet",t$AOI) & t$Duration >= 1000 & t$Duration < 1500)
@@ -56,14 +64,14 @@ for(i in 1:length(files)) {
   
   result_row <- data.frame(proband,
                            totalGlance,avgGlance,numGlances,maxGlance,
-                           totalGlanceStraight,avgGlanceStraight,numGlancesStraight,maxGlanceStraight,
-                           totalGlanceLC,avgGlanceLC,numGlancesLC,maxGlanceLC,
+                           glanceStraight, glanceLCStart, glanceLCDuring, glanceLCEnd,
+                           glanceStraightPercentage, glanceLCStartPercentage, glanceLCDuringPercentage, glanceLCEndPercentage,
                            glanceOver500,glanceOver1000,glanceOver1500, glanceOver1600,glanceOver2000, glanceOver2500,glanceOver3000)
   
   names(result_row) <- c("Proband", 
                          "TotalGlance", "AvgGlance","NumGlances", "MaxGlance",
-                         "TotalGlanceStraight", "AvgGlanceStraight","NumGlancesStraight", "MaxGlanceStraight",
-                         "TotalGlanceLC", "AvgGlanceLC","NumGlancesLC", "MaxGlanceLC",
+                         "glanceStraight", "glanceLCStart", "glanceLCDuring", "glanceLCEnd",
+                         "glanceStraightPercentage", "glanceLCStartPercentage", "glanceLCDuringPercentage", "glanceLCEndPercentage",
                          "dur_500","dur_1000","dur_1500","dur_1600","dur_2000","dur_2500","dur_3000")
   result <- rbind(result, result_row)
 }
@@ -134,10 +142,15 @@ ggscatter(result, x = "NumGlances", y = "MDev", add = "reg.line", conf.int = TRU
 ggscatter(result, x = "AvgGlance", y = "MDev", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 ggscatter(result, x = "MaxGlance", y = "MDev", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 
-ggscatter(result, x = "TotalGlanceStraight", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
-ggscatter(result, x = "NumGlancesStraight", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
-ggscatter(result, x = "AvgGlanceStraight", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
-ggscatter(result, x = "MaxGlanceStraight", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceStraight", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCStart", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCDuring", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCEnd", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+
+ggscatter(result, x = "glanceStraightPercentage", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCStartPercentage", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCDuringPercentage", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "glanceLCEndPercentage", y = "Diff", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 
 ggscatter(result, x = "TotalGlance", y = "Relative",  add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 ggscatter(result, x = "AvgGlance", y = "Relative", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
@@ -157,6 +170,7 @@ ggscatter(result, x = "MaxGlance", y = "MDevSteeringAngle", add = "reg.line", co
 ggscatter(result, x = "AvgGlance", y = "NumGlances", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 ggscatter(result, x = "AvgGlance", y = "TotalGlance", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 ggscatter(result, x = "AvgGlance", y = "MaxGlance", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
+ggscatter(result, x = "NumGlances", y = "TotalGlance", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 
 ggscatter(result, x = "Diff", y = "MDev", add = "reg.line", conf.int = TRUE, cor.coef = TRUE, cor.method = "pearson")
 
