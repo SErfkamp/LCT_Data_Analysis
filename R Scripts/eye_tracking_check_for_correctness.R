@@ -1,7 +1,13 @@
 ### CONSTS ###
-FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
-OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/Corrected/"
-CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv"
+#TOUCH
+FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/CSVData/"
+OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/Corrected/"
+CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_valuestouch.csv"
+
+#SWIPE
+#FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
+#OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/Corrected/"
+#CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv"
 
 
 ### READ CORRECTION FILE ###
@@ -16,14 +22,13 @@ corr$orig_0[is.na(corr$orig_0)] <- FALSE
 #corr <- corr[complete.cases(corr),]
 
 
-
 ### FOR LOOP CREATING FILES FOR ALL RUNS ###
 
 # install.packages("svMisc")
 require(svMisc)
 
 result <- data.frame()
-pdf("C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/glance_correction3.pdf")
+#pdf("C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/glance_correction3.pdf")
 
 ### LOOP OVER RAW CSV GLANCE FILES ###
 files <- list.files(path=FOLDER, pattern="*.txt", full.names=T, recursive=FALSE)
@@ -42,7 +47,7 @@ for(i in 1:length(files)) {
   # INIT VARS #
   if (!(proband %in% corr$Proband)) next
   
-  slope = corr$slope[corr$Proband == proband]
+  slope = as.numeric(corr$slope[corr$Proband == proband])
   y_distance = corr$y_distance[corr$Proband == proband]
   v = corr$v[corr$Proband == proband]
   h = corr$h[corr$Proband == proband]
@@ -71,10 +76,11 @@ for(i in 1:length(files)) {
   
   # CALC NEW VALUES #
   if (slope > 0) {
-    t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
+    t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
   } else {
-    t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
-  }  
+    t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
+  }
+  
   # PLOT CORRECTION #
   plot(t$X,t$Y,col=factor(1 + 2*t$Orig_Screen1 + t$newTablet),main = paste("Proband", proband, "- Corrected"),xlim = c(0,3000), ylim = c(-400,1000))
   abline(a = y_distance, b = slope, col="blue")
@@ -104,7 +110,8 @@ dev.off()
 
 
 SINGLE_FILE = FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
-FILE_NAME = "VP_18_1. Recording 25.08.2015 093053_CsvData"
+#SINGLE_FILE = FOLDER = "Z:/VP_8/"
+FILE_NAME = "VP_23_2. Recording 26.08.2015 154525_CsvData"
 FILE_NAME = paste(FILE_NAME,".txt", sep = "")
 SINGLE_FILE = paste(SINGLE_FILE,FILE_NAME,sep="")
 
@@ -127,10 +134,10 @@ h = corr$h[corr$ï..Proband == proband]
 h2 = corr$h2[corr$ï..Proband == proband]
 orig_0 = corr$orig_0[corr$ï..Proband == proband]'
 
-slope = -1.3
-y_distance = 2600
-v = 2200
-h = 500
+slope = -1.5
+y_distance = 2300
+v = 1850
+h = 450
 h2 = 800
 orig_0 = FALSE
 
@@ -153,15 +160,15 @@ t$rec_time <- as.numeric(gsub("\\.","", t$rec_time))
 t$rec_time <- as.numeric(t$minutes + t$rec_time)
 
 # FILTER BY REC TIME #
-#t <- t[t$rec_time>80000 & t$rec_time<81000,] #| t$rec_time>75000 & t$rec_time<110000 | t$rec_time>130000 & t$rec_time<170000, ]
+t <- t[t$rec_time>22095 & t$rec_time<22200,] #| t$rec_time>75000 & t$rec_time<110000 | t$rec_time>130000 & t$rec_time<170000, ]
 #t <- t[t$rec_time>31400 & t$rec_time<32150,] #| t$rec_time>75000 & t$rec_time<110000 | t$rec_time>130000 & t$rec_time<170000, ]
 
 
 # CALC NEW VALUES #
 if (slope > 0) {
-  t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
+  t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
 } else {
-  t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
+  t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
 }
 
 #t <- t[t$newTablet==0,]
