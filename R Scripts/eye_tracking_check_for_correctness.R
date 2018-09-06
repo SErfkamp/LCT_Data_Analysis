@@ -1,13 +1,13 @@
 ### CONSTS ###
 #TOUCH
-FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/CSVData/"
-OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/Corrected/"
-CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_valuestouch.csv"
+#FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/CSVData/"
+#OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_trackingtouch/Corrected/"
+#CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_valuestouch.csv"
 
 #SWIPE
-#FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
-#OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/Corrected/"
-#CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv"
+FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/CSVData/"
+OUTPUT_FOLDER = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_tracking/Corrected/"
+CORRECTION_FILE = "C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv"
 
 
 ### READ CORRECTION FILE ###
@@ -76,9 +76,13 @@ for(i in 1:length(files)) {
   
   # CALC NEW VALUES #
   if (slope > 0) {
-    t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
+    t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
+    
+    #t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y <= (t$X*slope+y_distance))),1,0)
   } else {
-    t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
+    t$newTablet <- ifelse(t$Proc_Tablet1==1 | (((t$Orig_Screen1 == 0 & orig_0) | !orig_0) & t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
+    
+    #t$newTablet <- ifelse((t$Proc_Tablet1==1 & !orig_0) | (t$X < v & t$Y < h2 & t$Y > h & (t$Y >= (t$X*slope+y_distance))),1,0)
   }
   
   # PLOT CORRECTION #
