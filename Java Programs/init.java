@@ -11,28 +11,30 @@ public class init {
 	static final String PATH_DRIVING = ONEDRIVE + "Auswertung" + File.separator + 
 			"Daten" + File.separator + "Driving";
 			
-			
 	static final String STRAIGHT_SECTION = ONEDRIVE + "Auswertung" + File.separator + 
 			"Daten" + File.separator + "Straight_Sections";
-				
-
 	
-//	static final String FOLDER_GLANCE = ONEDRIVE + "Auswertung" + File.separator + 
-//			"Daten" + File.separator + "Eye_tracking" + File.separator + "Corrected" + File.separator;
-//	
-//	static final String CORRECTION_FILE = ONEDRIVE + "Auswertung" + File.separator + 
-//			"Data Analysis" + File.separator + "correction_values.csv";
-			
+	static final String LC_SECTION = ONEDRIVE + "Auswertung" + File.separator + 
+			"Daten" + File.separator + "LC_Sections";
+	
 	static final String FOLDER_GLANCE = ONEDRIVE + "Auswertung" + File.separator + 
-			"Daten" + File.separator + "Eye_trackingtouch" + File.separator + "Corrected" + File.separator;
+			"Daten" + File.separator + "Eye_tracking" + File.separator + "Corrected" + File.separator;
 	
 	static final String CORRECTION_FILE = ONEDRIVE + "Auswertung" + File.separator + 
-			"Data Analysis" + File.separator + "correction_valuestouch.csv";
-			
-			
+			"Data Analysis" + File.separator + "correction_values.csv";
+
 	static final String PATH_LCT = HOME + File.separator + "opends45" + File.separator +
 			"assets" + File.separator + "DrivingTasks" + File.separator + "Projects" + 
 			File.separator + "LaneChangeTest" + File.separator;
+	
+	static final String IVIS_INPUTS = ONEDRIVE + "Auswertung" + File.separator + 
+			"Daten" + File.separator + "IVIS_Inputs" + File.separator;
+	
+//	static final String FOLDER_GLANCE = ONEDRIVE + "Auswertung" + File.separator + 
+//	"Daten" + File.separator + "Eye_trackingtouch" + File.separator + "Corrected" + File.separator;
+
+//static final String CORRECTION_FILE = ONEDRIVE + "Auswertung" + File.separator + 
+//	"Data Analysis" + File.separator + "correction_valuestouch.csv";
 	
 //	static final String PATH_SIGNS = "C:\\Users\\serfk\\OneDrive\\Thesis\\Auswertung\\LCTa - ISO26022\\LCTSigns.txt";
 //	static final String PATH_DRIVING = "C:\\Users\\serfk\\OneDrive\\Thesis\\Auswertung\\Daten\\Driving";
@@ -58,11 +60,11 @@ public class init {
 
 
 		
-    	createGlanceData obj1 = new createGlanceData(FOLDER_GLANCE);    	
-    	obj1.run();
+//    	createGlanceData obj1 = new createGlanceData(FOLDER_GLANCE);    	
+//    	obj1.run();
     	
-    	correctErrors obj2 = new correctErrors(FOLDER_GLANCE + "output" + File.separator, THRESHOLD);    	
-    	obj2.run();    	
+//    	correctErrors obj2 = new correctErrors(FOLDER_GLANCE + "output" + File.separator, THRESHOLD);    	
+//    	obj2.run();    		
     	
 //    	categorizeGlances obj3 = new categorizeGlances(FOLDER_GLANCE + "output" + File.separator + "error_corrected" + File.separator, PATH_DRIVING, CORRECTION_FILE, STRAIGHT_SECTION);
 //    	obj3.run();
@@ -72,6 +74,18 @@ public class init {
     	
     	//ConvertOpenDSLCTaskToSDefaultTask obj5 = new ConvertOpenDSLCTaskToSDefaultTask(PATH_SIGNS, PATH_LCT);	
     	//obj5.run();
+    	
+    	markerLaneChange obj6 = new markerLaneChange(PATH_DRIVING, LC_SECTION, CORRECTION_FILE);    	
+    	obj6.run();
+    	
+//    	defineLCSections obj7 = new defineLCSections(PATH_SIGNS, LC_SECTION, CORRECTION_FILE, PATH_DRIVING);    	
+//    	obj7.run();
+    		
+//    	GlanceTimestampToDistance obj8 = new GlanceTimestampToDistance(FOLDER_GLANCE, PATH_DRIVING, CORRECTION_FILE, LC_SECTION);    	
+//        obj8.run();
+        
+//    	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, LC_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
+//        obj9.run();
 	}
 	
 }

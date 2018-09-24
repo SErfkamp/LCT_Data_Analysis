@@ -1,11 +1,14 @@
 
 ## PREPARING DATA - BUILD UP EYE TRACKING DATA ##
 
-#files <- list.files(path=C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/", pattern="*.txt", full.names=T, recursive=FALSE)
-files <- list.files(path="C:/Users/serfk/OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/categorized/", pattern="*.txt", full.names=T, recursive=FALSE)
+os <- "C:/Users/serfk/"
+#os <- "/Users/se/"
+
+files <- list.files(path=paste(os,"OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/categorized/",sep = ""), pattern="*.txt", full.names=T, recursive=FALSE)
 
 ### READ CORRECTION FILE ###
-CORRECTION_FILE = "C:/Users/serfk/Documents/Thesis/Data Analysis/correction_values.csv"
+CORRECTION_FILE = paste(os,"OneDrive/Thesis/Auswertung/Data Analysis/correction_values.csv",sep="")
+
 corr <- read.table(CORRECTION_FILE, header=T, stringsAsFactors = FALSE, sep = ";") # load file
 
 result <- data.frame()
@@ -14,7 +17,7 @@ for(i in 1:length(files)) {
   t <- read.table(files[i], header=T, stringsAsFactors = FALSE) # load file
   
   proband <- strsplit(files[i],"/")[[1]][13]
-  proband <- strsplit(proband, "\\.")[[1]][1]
+  proband <- as.numeric(strsplit(proband, "\\.")[[1]][1])
   
   #filter out glances where proband didnt interact
   if(!is.na(corr$start_1[corr$Proband==proband])) {
@@ -47,7 +50,7 @@ for(i in 1:length(files)) {
   glanceLCStart = lcStartDist/totalDist * totalGlance
   glanceLCDuring = lcDuringDist/totalDist * totalGlance
   glanceLCEnd = lcEndDist/totalDist * totalGlance
-  
+   
   glanceStraightPercentage = straightDist/totalDist
   glanceLCStartPercentage = lcStartDist/totalDist
   glanceLCDuringPercentage = lcDuringDist/totalDist
@@ -80,10 +83,8 @@ for(i in 1:length(files)) {
 
 
 ## APPEND PERFORMANCE DATA - WITH PREFORMATTED DATA ##
-#diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_simple.csv", header=T, stringsAsFactors = FALSE) # load file
-diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_iso.csv", header=T, stringsAsFactors = FALSE) # load file
-#diff <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_dlpa.csv", header=T, stringsAsFactors = FALSE) # load file
-diff_Straight_LC <- read.csv(sep = ";","C:/Users/serfk/OneDrive/Thesis/Auswertung/Data Analysis/results_iso_straight_lc.csv", header=T, stringsAsFactors = FALSE) # load file
+diff <- read.csv(sep = ";",paste(os,"OneDrive/Thesis/Auswertung/Data Analysis/results_iso.csv",sep = ""), header=T, stringsAsFactors = FALSE) # load file
+diff_Straight_LC <- read.csv(sep = ";",paste(os,"OneDrive/Thesis/Auswertung/Data Analysis/results_iso_straight_lc.csv",sep=""), header=T, stringsAsFactors = FALSE) # load file
 
 
 diff$Diff <- as.numeric(gsub(",",".",diff$Diff))
