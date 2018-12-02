@@ -23,10 +23,10 @@ public class init {
 	static final String CORRECTION_FILE = ONEDRIVE + "Auswertung" + File.separator + 
 			"Data Analysis" + File.separator + "correction_values.csv";
 
-	static final String PATH_LCT = HOME + File.separator + "opends45" + File.separator +
+	static final String PATH_LCT = HOME + "Documents" + File.separator + "Thesis" + File.separator + "opends45" + File.separator +
 			"assets" + File.separator + "DrivingTasks" + File.separator + "Projects" + 
 			File.separator + "LaneChangeTest" + File.separator;
-	
+		
 	static final String IVIS_INPUTS = ONEDRIVE + "Auswertung" + File.separator + 
 			"Daten" + File.separator + "IVIS_Inputs" + File.separator;
 	
@@ -74,9 +74,15 @@ public class init {
     	
     	//ConvertOpenDSLCTaskToSDefaultTask obj5 = new ConvertOpenDSLCTaskToSDefaultTask(PATH_SIGNS, PATH_LCT);	
     	//obj5.run();
+		
+//    	createSignFile obj5 = new createSignFile(PATH_SIGNS, PATH_LCT);	
+//    	obj5.run();
     	
-    	markerLaneChange obj6 = new markerLaneChange(PATH_DRIVING, LC_SECTION, CORRECTION_FILE);    	
-    	obj6.run();
+//    	markerLaneChange obj6 = new markerLaneChange(PATH_DRIVING, LC_SECTION, CORRECTION_FILE);    	
+//    	obj6.run();
+		
+//    	markerStraight obj6 = new markerStraight(PATH_DRIVING, STRAIGHT_SECTION, CORRECTION_FILE);    	
+//    	obj6.run();
     	
 //    	defineLCSections obj7 = new defineLCSections(PATH_SIGNS, LC_SECTION, CORRECTION_FILE, PATH_DRIVING);    	
 //    	obj7.run();
@@ -84,8 +90,8 @@ public class init {
 //    	GlanceTimestampToDistance obj8 = new GlanceTimestampToDistance(FOLDER_GLANCE, PATH_DRIVING, CORRECTION_FILE, LC_SECTION);    	
 //        obj8.run();
         
-//    	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, LC_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
-//        obj9.run();
+    	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, LC_SECTION, STRAIGHT_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
+        obj9.run();
 	}
 	
 }

@@ -52,8 +52,32 @@ public class markerLaneChange {
 
 		        	String[] line = s.split("\\s+");
 		        	
-		        	lcSections[probandIndex][run][straightSectionIndex][0] = (int) Double.parseDouble(line[0]);
-		        	lcSections[probandIndex][run][straightSectionIndex][1] = (int) Double.parseDouble(line[1]) + 1;
+		        	/* LC NORMAL */		        	
+		        	/*lcSections[probandIndex][run][straightSectionIndex][0] = (int) Double.parseDouble(line[0]);
+		        	lcSections[probandIndex][run][straightSectionIndex][1] = (int) Double.parseDouble(line[1]) + 1;*/
+		        	
+		        	/* LC END */ 
+//	            	double sectionStart = Double.parseDouble(line[0]);
+//	            	double sectionFinish = Double.parseDouble(line[1]) + 5;
+//	            	
+//	            	double sectionLength = sectionFinish - sectionStart;
+//	            	
+//	            	double newSectionStart = sectionFinish - 0.33 * (sectionLength-5);
+//		        	
+//		        	lcSections[probandIndex][run][straightSectionIndex][0] = (int) newSectionStart;
+//		        	lcSections[probandIndex][run][straightSectionIndex][1] = (int) sectionFinish;
+		        	
+		        	/* LC START */
+	            	double sectionStart = Double.parseDouble(line[0]);
+	            	double sectionFinish = Double.parseDouble(line[1]);
+	            	
+	            	double sectionLength = sectionFinish - sectionStart;
+	            	
+	            	sectionFinish = sectionStart + 0.33 * (sectionLength); //
+		        	
+		        	lcSections[probandIndex][run][straightSectionIndex][0] = (int) sectionStart;
+		        	lcSections[probandIndex][run][straightSectionIndex][1] = (int) sectionFinish;
+		        	
 		        	
 		        	straightSectionIndex++;
 		    	}            		       
@@ -100,7 +124,7 @@ public class markerLaneChange {
 	        for (File file : files) {
 	        	if(!file.isFile()) continue;
 	        	//output
-	            Path outputPath = Paths.get(PATH_DRIVING + "\\Driving_Data\\" + file.getName());
+	            Path outputPath = Paths.get(PATH_DRIVING + "\\Driving_LCStart_Performance\\" + file.getName());
 
 	            //current position in marker array
 	            int j = 0;
@@ -146,7 +170,7 @@ public class markerLaneChange {
 	                	if (y_pos > upper_range && j < lcSections[proband][run].length-1) {
 	                		j+=1;
 	                	}
-	                	//System.out.println(proband + " - " + run + " - " + lower_range + " - " + y_pos + " - " + upper_range);
+	                	System.out.println(proband + " - " + run + " - " + lower_range + " - " + y_pos + " - " + upper_range);
 	                	
 	                	if (run == 1 && isUsingIVIS(currentTime, proband, usingTimestamps)) { 
 	                		line[6] = "1";

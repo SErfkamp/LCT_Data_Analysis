@@ -6,74 +6,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
 
-public class markerLC {
+public class markerStraight {
 	
 	private String PATH_DRIVING;
-	private String STRAIGHT_SECTION;
+	private String LC_SECTION;
 	private String CORRECTION_FILE;
 	
 
-    public markerLC(String PATH_DRIVING, String STRAIGHT_SECTION, String CORRECTION_FILE) {
+    public markerStraight(String PATH_DRIVING, String LC_SECTION, String CORRECTION_FILE) {
 		this.PATH_DRIVING = PATH_DRIVING;
-		this.STRAIGHT_SECTION = STRAIGHT_SECTION;
+		this.LC_SECTION = LC_SECTION;
 		this.CORRECTION_FILE = CORRECTION_FILE;
 	}
-    
-    
-    
-    public ArrayList<HashMap<String,Integer>> readCorrectionValues(String path) {
-    	ArrayList<HashMap<String,Integer>> correctionValues = new ArrayList<>();
-    	  	
-		Scanner scanner;
-		try {
-			scanner = new Scanner(new File(CORRECTION_FILE));
-			scanner.useDelimiter("\r\n");
-			while (scanner.hasNext()) {
-			    String line = scanner.next();
-			    String cells[] = line.split(";");   
-			    
-			    if(cells[0].equals("Proband")) continue;
-			    
-			    HashMap<String,Integer> newHashMap = new HashMap<String,Integer>();
-			    
-			    newHashMap.put("start_1", Integer.parseInt(cells[2]));
-			    newHashMap.put("end_1", Integer.parseInt(cells[3]));
-			    newHashMap.put("start_2", Integer.parseInt(cells[4]));
-			    newHashMap.put("end_2", Integer.parseInt(cells[5]));
-			    newHashMap.put("start_1", Integer.parseInt(cells[6]));
-			    newHashMap.put("end_3", Integer.parseInt(cells[7]));
-			    newHashMap.put("offset", Integer.parseInt(cells[8]));
-			    newHashMap.put("lc_start", Integer.parseInt(cells[9]));
-			    newHashMap.put("lc_end", Integer.parseInt(cells[10]));
-			    newHashMap.put("track_base", Integer.parseInt(cells[11]));
-			    newHashMap.put("track_wisch", Integer.parseInt(cells[12]));
-			    
-			    correctionValues.add(Integer.parseInt(cells[0]), newHashMap);	    
-
-			}
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		
-		return correctionValues;
-    }
-    
-    private String getMarkerForLine(String line) {
-    	
-    	
-    }
-    
 
 
 	void run () {
 		
-    	System.out.println("Start lc marker");
+    	System.out.println("Start markerStraight");
 
     	
 		int probandIndex = 0;
@@ -81,7 +34,7 @@ public class markerLC {
 		//Probands *  Base/Wisch * No. of Sections * Start/End
 		int[][][][] straightSections = new int[31][2][18][2];
 		
-        File[] straightSectionFiles = new File(STRAIGHT_SECTION).listFiles();
+        File[] straightSectionFiles = new File(LC_SECTION).listFiles();
 
         for (File file : straightSectionFiles) {
         	
@@ -113,14 +66,14 @@ public class markerLC {
 
         }
     	
-    	
-		
+		int proband;
+
 		File[] files = new File(PATH_DRIVING).listFiles();
 
 	        for (File file : files) {
 	        	if(!file.isFile()) continue;
 	        	//output
-	            Path outputPath = Paths.get(PATH_DRIVING + "\\Driving_Straight\\" + file.getName());
+	            Path outputPath = Paths.get(PATH_DRIVING + File.separator + "Straight_Markers" + File.separator + file.getName());
 
 	            //current position in marker array
 	            int j = 0;
@@ -133,14 +86,14 @@ public class markerLC {
 	        	} else {
 	        		run = 1;
 	        	}
+   	
+	        	char straight_char = 'B';
 	        	
 	            //read file
 	            try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
 	            	
 	            	for(String s : (Iterable<String>)lines::iterator) {
-	            		
-
-	            		    
+    		    
 	            		//System.out.println(s);
 	                	String data ="";
 	                	String[] line = s.split("\\s+");                	
@@ -165,17 +118,20 @@ public class markerLC {
 	                	}
 	                	//System.out.println(proband + " - " + run + " - " + lower_range + " - " + y_pos + " - " + upper_range);
 	                	
-	                	if (run == 0 || isUsingIVIS(currentTime, proband, usingTimestamps)) { 
+	                	if (run == 1) { 
+	                		line[6] = "1";
+	                	}
+	                	
 	                		
-		                	if (y_pos >= lower_range && y_pos <= upper_range) {
-		                		line[7] = "B";
-		                	} else {
-		                		line[7] = "C";
-		                	}
- 	
+	                	if (y_pos >= lower_range && y_pos <= upper_range) {
+	                		line[7] = "" + (char) (straight_char+j);
+
 	                	} else {
-	                    	line[7] = "A";
-	                	}          	
+	                		line[7] = "A";
+
+	                	}
+
+      	
 
 	                	for(int t = 0; t < line.length; t++) {
 	                		data += line[t] + "\t";
@@ -196,7 +152,7 @@ public class markerLC {
 	        }
     	//iterate through all driving files and update AdditionalMarker
     	
-	    System.out.println("End straightSectionPerformance");
+	    System.out.println("End markerLaneChange");
 
     }
     

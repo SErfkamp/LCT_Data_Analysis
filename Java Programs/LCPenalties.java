@@ -15,15 +15,31 @@ public class LCPenalties {
 	 private String FOLDER_GLANCE;
 	 private String OUTPUT_PATH;
 	 private String LC_SECTION;
+	 private String STRAIGHT_SECTION;
 	 private String PATH_DRIVING;
 	 private String IVIS_INPUTS;
+	 private int DELAY_OFFSET;
 
+	 
+	 private boolean straight_penalties = false;
 
 	
-    public LCPenalties(String FOLDER_GLANCE, String LC_SECTION, String ONEDRIVE, String PATH_DRIVING, String IVIS_INPUTS) {
+    public LCPenalties(String FOLDER_GLANCE, String LC_SECTION, String STRAIGHT_SECTION, String ONEDRIVE, String PATH_DRIVING, String IVIS_INPUTS) {
 		this.FOLDER_GLANCE = FOLDER_GLANCE + "output" + File.separator + "error_corrected" + File.separator + "distance" + File.separator;
 		this.LC_SECTION = LC_SECTION;
-		this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "penalties.csv";
+		this.STRAIGHT_SECTION = STRAIGHT_SECTION;
+		
+		if (straight_penalties) {
+			this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "straight_penalties.csv";
+		} else {
+			//this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "offset_lc_penalties.csv";
+			//this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "lcend_penalties.csv";
+
+			this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "lcstart_penalties.csv";
+		}
+		
+		this.DELAY_OFFSET = 0;
+
 		this.PATH_DRIVING = PATH_DRIVING;
 		this.IVIS_INPUTS = IVIS_INPUTS;
 	}
@@ -31,12 +47,13 @@ public class LCPenalties {
 	
 	public void run() {
 
-
 		double[] glancePenalties = new double[31];
 		int[] interactionPenalties = new int[31];
 		
 		// iterate through every proband
 		for (int i = 0; i < 31; i++) {
+			
+			System.out.println(i);
 			
 			if (i == 0) { 
 		        Path outputPath = Paths.get(OUTPUT_PATH);
@@ -54,6 +71,7 @@ public class LCPenalties {
 			glancePenalties = getGlancePenalties(i);
 			interactionPenalties =  getInteractionPenalties(i);
 
+			System.out.println("Done");
 			writeToFile(i, glancePenalties, interactionPenalties);
 		}
 		
@@ -85,23 +103,30 @@ public class LCPenalties {
 
 	public double[] getGlancePenalties(int proband) {
 		
-		double[][] lcSections = new double[18][2];
+		double[][] sections = new double[18][2];
 		ArrayList<double[]> glanceSections = new ArrayList<>();
 		
 		double[] glancePenalties = new double[18];
 		
 		// read lcSections File to get the area for penalties	
 		
-		lcSections = lcSection(proband+1);
+		if(straight_penalties) {
+			sections = straightSection(proband+1);
+		} else {
+			//sections = lcSection(proband+1);
+			//sections = lcEndSection(proband+1);
+			sections = lcStartSection(proband+1);
+
+		}
 		glanceSections = glanceSections(proband+1);
 		
-		for (int i = 0; i < lcSections.length; i++) {
+		for (int i = 0; i < sections.length; i++) {
 			
 			// penalty for i-th lanechange
 			double penalty = 0;
 			
-			double lcStart = lcSections[i][0];
-			double lcEnd = lcSections[i][1];
+			double lcStart = sections[i][0];
+			double lcEnd = sections[i][1];
 
 			for (int j = 0; j < glanceSections.size(); j++) {
 				
@@ -131,29 +156,37 @@ public class LCPenalties {
 	
 	public int[] getInteractionPenalties(int proband) {
 		
-		double[][] lcSections = new double[18][2];
+		double[][] sections = new double[18][2];
 		double[] interactions = getInteractionsPos(proband+1);
 		
 		int[] interactionPenalties = new int[18];
 		
 		// read lcSections File to get the area for penalties	
 		
-		lcSections = lcSection(proband+1);
+		if(straight_penalties) {
+			sections = straightSection(proband+1);
+		} else {
+			//sections = lcSection(proband+1);
+			//sections = lcEndSection(proband+1);
+			sections = lcStartSection(proband+1);
+
+		}
+
 		
-		for (int i = 0; i < lcSections.length; i++) {
+		for (int i = 0; i < sections.length; i++) {
 			
 			// penalty for i-th lanechange
 			int penalty = 0;
 			
-			double lcStart = lcSections[i][0];
-			double lcEnd = lcSections[i][1];
+			double secStart = sections[i][0];
+			double secEnd = sections[i][1];
 
 			for (int j = 0; j < interactions.length; j++) {
 				
 				double pos = interactions[j];
 				
-				if (pos < lcStart) continue;
-				if (pos > lcEnd) break;
+				if (pos < secStart) continue;
+				if (pos > secEnd) break;
 				
 				penalty += 1;
 				
@@ -202,7 +235,7 @@ public class LCPenalties {
 		          	ex.printStackTrace();
 		      }
 		     
-		System.out.println(interactions.toString());
+		//System.out.println(interactions.toString());
 		        	
 		return interactions.stream().mapToDouble(Double::doubleValue).toArray();
 	}
@@ -221,8 +254,107 @@ public class LCPenalties {
 	
 	            	String[] line = s.split("\\s+");       
 	            	
-	            	lcSections[i][0] = Double.parseDouble(line[0]);
+	            	lcSections[i][0] = Double.parseDouble(line[0])-DELAY_OFFSET;
 	            	lcSections[i][1] = Double.parseDouble(line[1]);
+	            	
+	             	System.out.println(lcSections[i][0] + " - " + lcSections[i][1]);
+
+	            	i++;
+	        	}  
+	        } catch (IOException ex) {
+	          	ex.printStackTrace();
+	        }
+	     
+
+		return lcSections;
+		
+	}
+	
+	public double[][] lcEndSection(int proband) {
+		double[][] lcSections = new double[18][2];
+		
+        File file = new File(LC_SECTION + File.separator + (proband) + "_wisch.txt");
+        
+        int i = 0;
+
+	     try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
+	        	
+	        	for(String s : (Iterable<String>)lines::iterator) {
+	
+	            	String[] line = s.split("\\s+");       
+	            	
+	            	double sectionStart = Double.parseDouble(line[0]);
+	            	double sectionFinish = Double.parseDouble(line[1]);
+	            	
+	            	double sectionLength = sectionFinish - sectionStart;
+	            	
+	            	// Penalties von den letzten 33% des Lane Change
+	            	sectionStart = sectionFinish - (0.33 * sectionLength);
+	            	
+	            	lcSections[i][0] = sectionStart;
+	            	lcSections[i][1] = sectionFinish;
+	            	
+	             	System.out.println(lcSections[i][0] + " - " + lcSections[i][1]);
+
+	            	i++;
+	        	}  
+	        } catch (IOException ex) {
+	          	ex.printStackTrace();
+	        }
+	     
+
+		return lcSections;
+		
+	}
+	
+	public double[][] lcStartSection(int proband) {
+		double[][] lcSections = new double[18][2];
+		
+        File file = new File(LC_SECTION + File.separator + (proband) + "_wisch.txt");
+        
+        int i = 0;
+
+	     try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
+	        	
+	        	for(String s : (Iterable<String>)lines::iterator) {
+	
+	            	String[] line = s.split("\\s+");       
+	            	
+	            	double sectionStart = Double.parseDouble(line[0]);
+	            	double sectionFinish = Double.parseDouble(line[1]);
+	            	
+	            	// Penalties von 16 Meter (1 Sekunde) vor dem LC Beginn bis zum LC Beginn
+	            	lcSections[i][0] = sectionStart - 16;
+	            	lcSections[i][1] = sectionStart;
+	            	
+	             	System.out.println(lcSections[i][0] + " - " + lcSections[i][1]);
+
+	            	i++;
+	        	}  
+	        } catch (IOException ex) {
+	          	ex.printStackTrace();
+	        }
+	     
+
+		return lcSections;
+		
+	}
+	
+	public double[][] straightSection(int proband) {
+		double[][] straightSections = new double[18][2];
+		
+        File file = new File(STRAIGHT_SECTION + File.separator + (proband) + "_wisch.txt");
+        
+        int i = 0;
+
+	     try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
+	        	
+	        	for(String s : (Iterable<String>)lines::iterator) {
+	
+	            	String[] line = s.split("\\s+");       
+	            	
+	            	straightSections[i][0] = Double.parseDouble(line[0]);
+	            	straightSections[i][1] = Double.parseDouble(line[1]);
 
 	            	i++;
 	        	}  
@@ -230,7 +362,7 @@ public class LCPenalties {
 	          	ex.printStackTrace();
 	        }
 		
-		return lcSections;
+		return straightSections;
 		
 	}
 	
@@ -258,6 +390,10 @@ public class LCPenalties {
 	        }
 		
 		return glanceSections;
+		
+	}
+	
+	private void readCorrectionValues() {
 		
 	}
 	
