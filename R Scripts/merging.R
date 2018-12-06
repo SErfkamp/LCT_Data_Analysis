@@ -8,17 +8,15 @@ CORRECTION_FILE = paste(os,"OneDrive/Thesis/Auswertung/Data Analysis/correction_
 
 input_files <- list.files(path=paste(os,"OneDrive/Thesis/Auswertung/Daten/IVIS_Inputs/",sep = ""), pattern="*.csv", full.names=T, recursive=FALSE)
 
-C:\Users\serfk\OneDrive\Thesis\Auswertung\Daten\IVIS_Inputs
 corr <- read.csv(CORRECTION_FILE, header=T, stringsAsFactors = FALSE, sep = ";") # load file
-
 
 for(i in 1:length(input_files)) {
   
   inputs <- read.csv(input_files[i], header=T, stringsAsFactors = FALSE, sep = ",")
   inputs$Milliseconds <- inputs$Milliseconds - (inputs$Milliseconds[inputs$Event=="Start"]-9080)
   
-  proband <- i # strsplit(files[i],"/")[[1]][13]
-  #proband <- as.numeric(strsplit(proband, "\\.")[[1]][1])
+  proband <- strsplit(files[i],"/")[[1]][13]
+  proband <- as.numeric(strsplit(proband, "\\.")[[1]][1])
   
   glance_file <- paste(os,"OneDrive/Thesis/Auswertung/Daten/Eye_Tracking/Corrected/output/error_corrected/categorized/",proband,".txt",sep = "")
  

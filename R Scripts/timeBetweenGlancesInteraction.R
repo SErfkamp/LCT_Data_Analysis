@@ -12,6 +12,7 @@ j<-0
 openGlance <- F
 previousInputTime <- 0
 previousEvent <- ""
+handOffWheel = 
 
 allValues <- c()
 
@@ -27,8 +28,15 @@ for(i in 1:length(files)) {
   
   for (row in 1:nrow(inputs)) {
     
-    if(inputs[row,"Event"] == "Hand leaves steering wheel" 
-    | inputs[row,"Event"] == "Hand returns to steering wheel") {
+    if(inputs[row,"Event"] == "Hand leaves steering wheel") {
+      handOffWheel = T
+      previousEvent = "Hand leaves steering wheel"
+      next
+    }
+    
+    if(inputs[row,"Event"] == "Hand returns to steering wheel") {
+      handOffWheel = F
+      previousEvent = "Hand returns to steering wheel"
       next
     }
     
@@ -63,13 +71,24 @@ for(i in 1:length(files)) {
         previousInputTime <- inputs[row,"Milliseconds"]
         previousEvent = "Input"
         next
-      } 
+      }
+      
+      if(previousEvent == "Hand leaves steering wheel") {
+        next
+      }
+      
+      if(!handOffWheel) {
+        next
+      }
       
       if(previousEvent == "glance_start") {
         timeBetweenInputs = inputs[row,"Milliseconds"] - previousInputTime
+        
+        #Proband 23 uncertainty
+        if(timeBetweenInputs == 440) next
+
         if(timeBetweenInputs < 3000) {
           allValues <- c(allValues, timeBetweenInputs)
-          
         }
         previousInputTime <- inputs[row,"Milliseconds"]
         
@@ -97,5 +116,6 @@ average = sum / n
 
 qts <- quantile(allValues,probs=.10)
 hist(allValues, main = "Time between Inputs with glance on street inbetween")
+
 
 abline(v=qts[1],col="red")
