@@ -392,10 +392,7 @@ public class LCPenalties {
 		return glanceSections;
 		
 	}
-	
-	private void readCorrectionValues() {
-		
-	}
+
 	
 	private double[] getYPosFromTimestamp(int startTime, int proband) {
 		double[] y_pos= {0.0,0.0};

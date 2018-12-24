@@ -1,17 +1,22 @@
+# -------------------------------------------------------------
+# Data Preparation #
+# -------------------------------------------------------------
+
 library(readxl)
 library(ggplot2)
-library(coin)
 library(agricolae)
+library(coin)
+
 
 # Pfade
 os <- "C:/Users/serfk/"
 #os <- "/Users/se/"
 
 path <-  paste(os,"OneDrive/Thesis/Studie/Auswertung.xlsx",sep="")
-data <- read_excel(path, sheet = "NASA_TLX")
+data <- read_excel(path, sheet = "DALI")
 
 treatments <- c("User", "Drive", "Interaction", "Track")
-vars <- c("mental_demand", "physical_demand", "temporal_demand", "performance", "effort", "frustration", "global")
+vars <- c("effort_of_attention", "visual_demand", "auditory_demand", "temporal_demand", "interference", "situational_stress", "global")
 
 # -------------------------------------------------------------
 # General #
@@ -57,15 +62,17 @@ for(i in 1:length(vars)) {
 # -------------------------------------------------------------
 
 wilcoxResult <- function (treat1, treat2, var) {
-  
+
   tempData <- subset(data,Treatment==treat1 | Treatment==treat2)
   tempData$Treatment <- factor(tempData$Treatment)
   tempData$Proband <- factor(tempData$Proband)
   tempFormula <- as.formula(paste(var," ~ Treatment | Proband",sep=""))
   wil <- wilcoxsign_test(tempFormula, tempData, console=T)
-  
+
   z <- round(statistic(wil),4)
   p <- round(pvalue(wil),4)
+  
+  #if(p>1) p<-2-p
   
   if(p<0.001) {
     sig <- "***"
@@ -105,65 +112,65 @@ names(result) <- c("Untersuchung",vars)
 # Graph #
 # -------------------------------------------------------------
 
-#mental_demand
-var1 <- mean(data$mental_demand[data$Treatment=="User"])
-var2 <- mean(data$mental_demand[data$Treatment=="Interaction"])
-var3 <- mean(data$mental_demand[data$Treatment=="Drive"])
-var4 <- mean(data$mental_demand[data$Treatment=="Track"])
-sd1 <- sd(data$mental_demand[data$Treatment=="User"])
-sd2 <- sd(data$mental_demand[data$Treatment=="Interaction"])
-sd3 <- sd(data$mental_demand[data$Treatment=="Drive"])
-sd4 <- sd(data$mental_demand[data$Treatment=="Track"])
+#effort_of_attention
+var1 <- mean(data$effort_of_attention[data$Treatment=="User"])
+var2 <- mean(data$effort_of_attention[data$Treatment=="Interaction"])
+var3 <- mean(data$effort_of_attention[data$Treatment=="Drive"])
+var4 <- mean(data$effort_of_attention[data$Treatment=="Track"])
+sd1 <- sd(data$effort_of_attention[data$Treatment=="User"])
+sd2 <- sd(data$effort_of_attention[data$Treatment=="Interaction"])
+sd3 <- sd(data$effort_of_attention[data$Treatment=="Drive"])
+sd4 <- sd(data$effort_of_attention[data$Treatment=="Track"])
 
-#physical_demand
-var5 <- mean(data$physical_demand[data$Treatment=="User"])
-var6 <- mean(data$physical_demand[data$Treatment=="Interaction"])
-var7 <- mean(data$physical_demand[data$Treatment=="Drive"])
-var8 <- mean(data$physical_demand[data$Treatment=="Track"])
-sd5 <- sd(data$physical_demand[data$Treatment=="User"])
-sd6 <- sd(data$physical_demand[data$Treatment=="Interaction"])
-sd7 <- sd(data$physical_demand[data$Treatment=="Drive"])
-sd8 <- sd(data$physical_demand[data$Treatment=="Track"])
+#visual_demand
+var5 <- mean(data$visual_demand[data$Treatment=="User"])
+var6 <- mean(data$visual_demand[data$Treatment=="Interaction"])
+var7 <- mean(data$visual_demand[data$Treatment=="Drive"])
+var8 <- mean(data$visual_demand[data$Treatment=="Track"])
+sd5 <- sd(data$visual_demand[data$Treatment=="User"])
+sd6 <- sd(data$visual_demand[data$Treatment=="Interaction"])
+sd7 <- sd(data$visual_demand[data$Treatment=="Drive"])
+sd8 <- sd(data$visual_demand[data$Treatment=="Track"])
+
+#auditory_demand
+var9 <- mean(data$auditory_demand[data$Treatment=="User"])
+var10 <- mean(data$auditory_demand[data$Treatment=="Interaction"])
+var11 <- mean(data$auditory_demand[data$Treatment=="Drive"])
+var12 <- mean(data$auditory_demand[data$Treatment=="Track"])
+sd9 <- sd(data$auditory_demand[data$Treatment=="User"])
+sd10 <- sd(data$auditory_demand[data$Treatment=="Interaction"])
+sd11 <- sd(data$auditory_demand[data$Treatment=="Drive"])
+sd12 <- sd(data$auditory_demand[data$Treatment=="Track"])
 
 #temporal_demand
-var9 <- mean(data$temporal_demand[data$Treatment=="User"])
-var10 <- mean(data$temporal_demand[data$Treatment=="Interaction"])
-var11 <- mean(data$temporal_demand[data$Treatment=="Drive"])
-var12 <- mean(data$temporal_demand[data$Treatment=="Track"])
-sd9 <- sd(data$temporal_demand[data$Treatment=="User"])
-sd10 <- sd(data$temporal_demand[data$Treatment=="Interaction"])
-sd11 <- sd(data$temporal_demand[data$Treatment=="Drive"])
-sd12 <- sd(data$temporal_demand[data$Treatment=="Track"])
+var13 <- mean(data$temporal_demand[data$Treatment=="User"])
+var14 <- mean(data$temporal_demand[data$Treatment=="Interaction"])
+var15 <- mean(data$temporal_demand[data$Treatment=="Drive"])
+var16 <- mean(data$temporal_demand[data$Treatment=="Track"])
+sd13 <- sd(data$temporal_demand[data$Treatment=="User"])
+sd14 <- sd(data$temporal_demand[data$Treatment=="Interaction"])
+sd15 <- sd(data$temporal_demand[data$Treatment=="Drive"])
+sd16 <- sd(data$temporal_demand[data$Treatment=="Track"])
 
-#performance
-var13 <- mean(data$performance[data$Treatment=="User"])
-var14 <- mean(data$performance[data$Treatment=="Interaction"])
-var15 <- mean(data$performance[data$Treatment=="Drive"])
-var16 <- mean(data$performance[data$Treatment=="Track"])
-sd13 <- sd(data$performance[data$Treatment=="User"])
-sd14 <- sd(data$performance[data$Treatment=="Interaction"])
-sd15 <- sd(data$performance[data$Treatment=="Drive"])
-sd16 <- sd(data$performance[data$Treatment=="Track"])
+#interference
+var17 <- mean(data$interference[data$Treatment=="User"])
+var18 <- mean(data$interference[data$Treatment=="Interaction"])
+var19 <- mean(data$interference[data$Treatment=="Drive"])
+var20 <- mean(data$interference[data$Treatment=="Track"])
+sd17 <- sd(data$interference[data$Treatment=="User"])
+sd18 <- sd(data$interference[data$Treatment=="Interaction"])
+sd19 <- sd(data$interference[data$Treatment=="Drive"])
+sd20 <- sd(data$interference[data$Treatment=="Track"])
 
-#effort
-var17 <- mean(data$effort[data$Treatment=="User"])
-var18 <- mean(data$effort[data$Treatment=="Interaction"])
-var19 <- mean(data$effort[data$Treatment=="Drive"])
-var20 <- mean(data$effort[data$Treatment=="Track"])
-sd17 <- sd(data$effort[data$Treatment=="User"])
-sd18 <- sd(data$effort[data$Treatment=="Interaction"])
-sd19 <- sd(data$effort[data$Treatment=="Drive"])
-sd20 <- sd(data$effort[data$Treatment=="Track"])
-
-#frustration
-var21 <- mean(data$frustration[data$Treatment=="User"])
-var22 <- mean(data$frustration[data$Treatment=="Interaction"])
-var23 <- mean(data$frustration[data$Treatment=="Drive"])
-var24 <- mean(data$frustration[data$Treatment=="Track"])
-sd21 <- sd(data$frustration[data$Treatment=="User"])
-sd22 <- sd(data$frustration[data$Treatment=="Interaction"])
-sd23 <- sd(data$frustration[data$Treatment=="Drive"])
-sd24 <- sd(data$frustration[data$Treatment=="Track"])
+#situational_stress
+var21 <- mean(data$situational_stress[data$Treatment=="User"])
+var22 <- mean(data$situational_stress[data$Treatment=="Interaction"])
+var23 <- mean(data$situational_stress[data$Treatment=="Drive"])
+var24 <- mean(data$situational_stress[data$Treatment=="Track"])
+sd21 <- sd(data$situational_stress[data$Treatment=="User"])
+sd22 <- sd(data$situational_stress[data$Treatment=="Interaction"])
+sd23 <- sd(data$situational_stress[data$Treatment=="Drive"])
+sd24 <- sd(data$situational_stress[data$Treatment=="Track"])
 
 #global score
 user <- mean(data$global[data$Treatment=="User"])
@@ -177,22 +184,23 @@ drivesd <- sd(data$global[data$Treatment=="Drive"])
 tracksd <- sd(data$global[data$Treatment=="Track"])
 
 
-mental = c(var1,var2,var3,var4)
-physical = c(var5,var6,var7,var8)
-temporal = c(var9,var10,var11,var12)
-perform = c(var13,var14,var15,var16)
-effo = c(var17,var18,var19,var20)
-frust = c(var21,var22,var23,var24)
+attention = c(var1,var2,var3,var4)
+visual = c(var5,var6,var7,var8)
+auditory = c(var9,var10,var11,var12)
+temporal = c(var13,var14,var15,var16)
+interference = c(var17,var18,var19,var20)
+stress = c(var21,var22,var23,var24)
 global = c(user,interaction,drive,track)
-alle = c(mental, physical, temporal, perform, effo, frust, global)
-scales = c("Mental Demand","Physical Demand", "Temporal Demand","Own Performance", "Effort", "Frustration", "Global")
+alle = c(attention, visual, auditory, temporal, interference, stress, global)
 treatment = c("User","Interaction", "Drive","Track")
+scales = c("Effort of Attention","Visual Demand", "Auditory Demand","Temporal Demand", "Interference", "Situational Stress", "Global")
 sdup = c(var1+sd1,var2+sd2,var3+sd3,var4+sd4,var5+sd5,var6+sd6,var7+sd7,var8+sd8,var9+sd9,var10+sd10,var11+sd11,var12+sd12,var13+sd13,var14+sd14,var15+sd15,var16+sd16,var17+sd17,var18+sd18,var19+sd19,var20+sd20,var21+sd21,var22+sd22,var23+sd23,var24+sd24,user+usersd,interaction+interactionsd,drive+drivesd,track+tracksd)
 sddown=c(var1-sd1,var2-sd2,var3-sd3,var4-sd4,var5-sd5,var6-sd6,var7-sd7,var8-sd8,var9-sd9,var10-sd10,var11-sd11,var12-sd12,var13-sd13,var14-sd14,var15-sd15,var16-sd16,var17-sd17,var18-sd18,var19-sd19,var20-sd20,var21-sd21,var22-sd22,var23-sd23,var24-sd24,user-usersd,interaction-interactionsd,drive-drivesd,track-tracksd)
 
+
 df <- data.frame(
   #x-Achse; immer so viele Balken, wie es gibt
-  trt = factor(c("Mental Demand","Mental Demand","Mental Demand","Mental Demand","Physical Demand","Physical Demand","Physical Demand","Physical Demand","Temporal Demand","Temporal Demand","Temporal Demand","Temporal Demand","Own Performance","Own Performance","Own Performance","Own Performance","Effort","Effort","Effort","Effort","Frustration","Frustration","Frustration","Frustration","Global","Global","Global","Global")),
+  trt = factor(c("Effort of Attention","Effort of Attention","Effort of Attention","Effort of Attention","Visual Demand","Visual Demand","Visual Demand","Visual Demand","Auditory Demand","Auditory Demand","Auditory Demand","Auditory Demand","Temporal Demand","Temporal Demand","Temporal Demand","Temporal Demand","Interference","Interference","Interference","Interference","Situational Stress","Situational Stress","Situational Stress","Situational Stress","Global","Global","Global","Global")),
   #Mittelwert einfügen
   resp = c(alle),
   Treatment = treatment,
@@ -210,6 +218,7 @@ p +
   theme_bw() + 
   scale_x_discrete(limits=scales) +
   ylim(-0.0, 20) +
-  ggtitle("NASA TLX Auswertung") +
+  ggtitle("DALI Auswertung") +
   xlab("Faktoren") +
   ylab("Werte")
+
