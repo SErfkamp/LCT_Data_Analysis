@@ -81,6 +81,8 @@ for(i in 1:length(files)) {
 average = sum / n
 
 qts <- quantile(allValues,probs=.90)
-hist(allValues,main = "Time between Inputs while looking on the IVIS")
+hist(allValues,breaks=10, main = "Zeit zwischen Eingaben bei durchgängigem Blick auf das IVIS", xlab="Dauer in ms", ylab="Anzahl")
 
+qts
 abline(v=qts[1],col="red")
+n

@@ -35,7 +35,7 @@ public class LCPenalties {
 			//this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "offset_lc_penalties.csv";
 			//this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "lcend_penalties.csv";
 
-			this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "lcstart_penalties.csv";
+			this.OUTPUT_PATH = ONEDRIVE + "Auswertung" + File.separator + "Data Analysis" + File.separator + "priorlc_penalties.csv";
 		}
 		
 		this.DELAY_OFFSET = 0;
@@ -324,7 +324,7 @@ public class LCPenalties {
 	            	double sectionFinish = Double.parseDouble(line[1]);
 	            	
 	            	// Penalties von 16 Meter (1 Sekunde) vor dem LC Beginn bis zum LC Beginn
-	            	lcSections[i][0] = sectionStart - 16;
+	            	lcSections[i][0] = sectionStart - 16.66;
 	            	lcSections[i][1] = sectionStart;
 	            	
 	             	System.out.println(lcSections[i][0] + " - " + lcSections[i][1]);

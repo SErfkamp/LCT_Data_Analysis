@@ -115,7 +115,8 @@ for(i in 1:length(files)) {
 average = sum / n
 
 qts <- quantile(allValues,probs=.10)
-hist(allValues, main = "Time between Inputs with glance on street inbetween")
-
+hist(allValues, main = "Zeit zwischen Eingaben bei intermediärem Blick auf Straße", xlab="Dauer in ms", ylab="Anzahl")
+qts   
+n
 
 abline(v=qts[1],col="red")

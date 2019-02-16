@@ -15,6 +15,14 @@ os <- "C:/Users/serfk/"
 path <-  paste(os,"OneDrive/Thesis/Studie/Auswertung.xlsx",sep="")
 data <- read_excel(path, sheet = "DALI")
 
+data$effort_of_attention <- data$effort_of_attention *5
+data$visual_demand <- data$visual_demand *5
+data$auditory_demand <- data$auditory_demand *5
+data$temporal_demand <- data$temporal_demand *5
+data$interference <- data$interference *5
+data$situational_stress <- data$situational_stress *5
+data$global <- data$global *5
+
 treatments <- c("User", "Drive", "Interaction", "Track")
 vars <- c("effort_of_attention", "visual_demand", "auditory_demand", "temporal_demand", "interference", "situational_stress", "global")
 
@@ -41,9 +49,27 @@ for(i in 1:length(treatments)) {
 
 normalityRes <- data.frame()
 
-for(i in 1:length(vars)) {
-  test <- shapiro.test(as.matrix(data[vars[i]]))
-  normalityRes[1,i] <- paste("W = ",round(test$statistic,4),", p-value = ", round(test$p.value,4), sep="")
+for(i in 1:length(treatments)) {
+  
+  treatment <- treatments[i]
+  treatTemp <- subset(data,Treatment==treatment)
+  row <- i
+  
+  for (j in 1:length(vars)) {
+    var <- vars[j]
+    varData <- treatTemp[var]
+    normalTempData <- as.matrix(varData)
+    tryCatch({
+      test <- shapiro.test(normalTempData)
+      print(paste(treatment,var))
+      
+      normalityRes[row,j] <- paste("W = ",round(test$statistic,4),", p-value = ", round(test$p.value,4), sep="")
+      print(paste("W = ",round(test$statistic,4),", p-value = ", round(test$p.value,4), sep=""))
+      
+    }, error=function(e){
+      #normalityRes[row,j] <- "x"
+    })
+  }
 }
 
 # -------------------------------------------------------------
@@ -67,12 +93,15 @@ wilcoxResult <- function (treat1, treat2, var) {
   tempData$Treatment <- factor(tempData$Treatment)
   tempData$Proband <- factor(tempData$Proband)
   tempFormula <- as.formula(paste(var," ~ Treatment | Proband",sep=""))
-  wil <- wilcoxsign_test(tempFormula, tempData, console=T)
+  test <- wilcoxsign_test(tempFormula, tempData, console=T)
 
-  z <- round(statistic(wil),4)
-  p <- round(pvalue(wil),4)
+  z <- round(statistic(test),4)
+  p <- round(pvalue(test),4)
   
-  #if(p>1) p<-2-p
+  #Vorzeichen wird geändert nach Alphabetischer Reihenfolge der Treatments
+  if (treat2 < treat1) {
+    z <- z * -1
+  }
   
   if(p<0.001) {
     sig <- "***"
@@ -206,6 +235,7 @@ df <- data.frame(
   Treatment = treatment,
   scales = scales
 )
+treatmentsLabel <- c("Fahrtb.","Eingabeb.","Streckenb.", "Benutzerb.")
 
 p <- ggplot(df, aes(trt, resp, fill=Treatment))
 p +
@@ -214,11 +244,10 @@ p +
     aes(ymin = sddown, ymax = sdup),
     position = position_dodge2(width = 0.5, padding = 0.5)
   ) + 
-  scale_fill_grey() + 
+  scale_fill_grey(labels=treatmentsLabel) + 
   theme_bw() + 
   scale_x_discrete(limits=scales) +
-  ylim(-0.0, 20) +
-  ggtitle("DALI Auswertung") +
+  ylim(-0.0, 100) +
   xlab("Faktoren") +
   ylab("Werte")
 

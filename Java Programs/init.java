@@ -17,6 +17,9 @@ public class init {
 	static final String LC_SECTION = ONEDRIVE + "Auswertung" + File.separator + 
 			"Daten" + File.separator + "LC_Sections";
 	
+	static final String PRIOR_LC_SECTION = ONEDRIVE + "Auswertung" + File.separator + 
+			"Daten" + File.separator + "LC_Sections";
+	
 	static final String FOLDER_GLANCE = ONEDRIVE + "Auswertung" + File.separator + 
 			"Daten" + File.separator + "Eye_tracking" + File.separator + "Corrected" + File.separator;
 	
@@ -84,14 +87,18 @@ public class init {
 //    	markerStraight obj6 = new markerStraight(PATH_DRIVING, STRAIGHT_SECTION, CORRECTION_FILE);    	
 //    	obj6.run();
     	
-//    	defineLCSections obj7 = new defineLCSections(PATH_SIGNS, LC_SECTION, CORRECTION_FILE, PATH_DRIVING);    	
-//    	obj7.run();
+ //   	defineLCSections obj7 = new defineLCSections(PATH_SIGNS, LC_SECTION, CORRECTION_FILE, PATH_DRIVING);    	
+ // 	obj7.run();
+    	
     		
 //    	GlanceTimestampToDistance obj8 = new GlanceTimestampToDistance(FOLDER_GLANCE, PATH_DRIVING, CORRECTION_FILE, LC_SECTION);    	
 //        obj8.run();
         
-    	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, LC_SECTION, STRAIGHT_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
+    	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, PRIOR_LC_SECTION, STRAIGHT_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
         obj9.run();
+        
+ //   	LCPenalties obj9 = new LCPenalties(FOLDER_GLANCE, LC_SECTION, STRAIGHT_SECTION, ONEDRIVE,  PATH_DRIVING, IVIS_INPUTS);    	
+ //       obj9.run();
 	}
 	
 }

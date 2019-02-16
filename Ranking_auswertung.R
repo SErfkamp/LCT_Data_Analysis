@@ -3,6 +3,7 @@ library(ggplot2)
 library(tidyr)
 library(agricolae)
 library(coin)
+library(psych)
 
 # Pfade
 os <- "C:/Users/serfk/"
@@ -70,10 +71,15 @@ wilcoxResult <- function (treat1, treat2, var) {
   tempData$Treatment <- factor(tempData$Treatment)
   tempData$Proband <- factor(tempData$Proband)
   tempFormula <- as.formula(paste(var," ~ Treatment | Proband",sep=""))
-  wil <- wilcoxsign_test(tempFormula, tempData, console=T)
+  test <- wilcoxsign_test(tempFormula, tempData, console=T)
   
-  z <- round(statistic(wil),4)
-  p <- round(pvalue(wil),4)
+  z <- round(statistic(test),4)
+  p <- round(pvalue(test),4)
+  
+  #Vorzeichen wird geändert nach Alphabetischer Reihenfolge der Treatments
+  if (treat2 < treat1) {
+    z <- z * -1
+  }
   
   if(p<0.001) {
     sig <- "***"
@@ -163,6 +169,9 @@ df <- data.frame(
   scales = scales
 )
 
+treatmentsLabel <- c("Fahrtb.","Eingabeb.","Streckenb.", "Benutzerb.")
+
+
 p <- ggplot(df, aes(trt, resp, fill=Treatment))
 p +
   geom_col(position = "dodge2") +
@@ -170,10 +179,10 @@ p +
     aes(ymin = sddown, ymax = sdup),
     position = position_dodge2(width = 0.5, padding = 0.5)
   ) + 
-  scale_fill_grey() + 
+  scale_fill_grey(labels=treatmentsLabel) + 
   theme_bw() + 
   scale_x_discrete(limits=scales) +
   ylim(-0.0, 4.15) +
-  ggtitle("Ranking Auswertung") +
+ # ggtitle("Ranking Auswertung") +
   xlab("") +
   ylab("Rang")
